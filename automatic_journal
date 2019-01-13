@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage automatic_journal <yyyy-mm-dd>" >&2
+    exit 1
+fi
+
+date=$1
+path_out="results/journal-$date-$(date +%s).csv"
+mkdir -p "$(dirname "$path_out")"
+
+for provider in ./providers/*; do
+    echo "=== Running provider $provider ===" >&2
+    "$provider/main.sh" "$date" >> "$path_out"
+done
