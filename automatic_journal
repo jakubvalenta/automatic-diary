@@ -12,7 +12,13 @@ date=$1
 path_out="$dir/results/journal-$date-$(date +%s).csv"
 mkdir -p "$(dirname "$path_out")"
 
-for provider_main in "$dir/providers"/*/main.sh; do
-    echo "=== Running $provider_main ===" >&2
-    "$provider_main" "$date" >> "$path_out"
+for provider_dir in "$dir/providers"/*; do
+    echo "=== Running $provider_dir ===" >&2
+    if [[ -f "$provider_dir/main" ]]; then
+        "$provider_dir/main" "$date" >> "$path_out"
+    elif [[ -f "$provider_dir/main.py" ]]; then
+        pipenv run "$provider_dir/main.py" >> "$path_out"
+    else
+        echo "No main script found" >&2
+    fi
 done
