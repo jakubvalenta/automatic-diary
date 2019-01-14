@@ -7,11 +7,12 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
+dir=$(dirname "$(readlink -f "$0")")
 date=$1
-path_out="results/journal-$date-$(date +%s).csv"
+path_out="$dir/results/journal-$date-$(date +%s).csv"
 mkdir -p "$(dirname "$path_out")"
 
-for provider in ./providers/*; do
-    echo "=== Running provider $provider ===" >&2
-    "$provider/main.sh" "$date" >> "$path_out"
+for provider_main in "$dir/providers"/*/main.sh; do
+    echo "=== Running $provider_main ===" >&2
+    "$provider_main" "$date" >> "$path_out"
 done
