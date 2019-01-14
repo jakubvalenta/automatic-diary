@@ -1,5 +1,16 @@
 # Automatic Journal
 
+## Pre-requisites
+
+- Python 3
+- Pipenv
+
+## Installation
+
+```
+pipenv install
+```
+
 ## Usage
 
 ```
@@ -8,4 +19,5 @@
 
 ## Supported providers
 
+- caldav
 - git
