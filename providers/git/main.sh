@@ -7,8 +7,6 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
-date_after=$1
-date_before=$(date -d "$date_after +1 day" "+%Y-%m-%d")
 if [[ -z "$GIT_BASE_PATH" ]]; then
     echo "Please set the environment variable GIT_BASE_PATH." >&2
     echo "Example: GIT_BASE_PATH=\"$HOME/devel\"" >&2
@@ -20,6 +18,10 @@ if [[ -z "$GIT_AUTHOR" ]]; then
     echo "Example: GIT_AUTHOR=\"Jakub Valenta\"" >&2
     exit 1
 fi
+
+date=$1
+date_after="$date 00:00"
+date_before="$date 23:59"
 
 echo "Reading Git logs from $date_after to $date_before" >&2
 
