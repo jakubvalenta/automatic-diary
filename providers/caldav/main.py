@@ -4,6 +4,9 @@ import json
 import logging
 import subprocess
 import sys
+from functools import partial
+from pathlib import Path
+from typing import Any, Callable
 
 import caldav
 
@@ -32,6 +35,7 @@ def load_config(path: str) -> dict:
         username = config['caldav']['username']
         password_key = config['caldav']['password_key']
         password_val = config['caldav']['password_val']
+        cache_file = config['caldav']['cache_file']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -41,22 +45,40 @@ def load_config(path: str) -> dict:
         'url': url,
         'username': username,
         'password': password,
+        'cache_file': cache_file,
     }
 
 
-def main(url: str, username: str, password: str) -> str:
-    logger.info('  Connecting to %s', url)
+def with_cache(func: Callable, cache_file: str) -> Any:
+    path = Path(cache_file)
+    if path.is_file():
+        logger.info('Reading cache')
+        return path.read_text()
+    data = func()
+    logger.info('Writing cache')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(data)
+    return data
+
+
+def read_ical(data: str) -> str:
+    pass
+
+
+def download_data(url: str, username: str, password: str) -> str:
+    data = []
+    logger.info('Connecting to %s', url)
     client = caldav.DAVClient(
         url,
         username=username,
         password=password
     )
-    logger.info('  Reading principal')
+    logger.info('Reading principal')
     principal = client.principal()
     for calendar in principal.calendars():
         for event in calendar.events():
-            ical_text = event.data
-            logger.info(ical_text)
+            data.append(event.data)
+    return '\n'.join(data)
 
 
 if __name__ == '__main__':
@@ -65,9 +87,13 @@ if __name__ == '__main__':
         level=logging.INFO,
         format='%(message)s')
     config = load_config(sys.argv[1])
-    sys.exit(0)
-    main(
-        config['url'],
-        config['username'],
-        config['password'],
+    data = with_cache(
+        partial(
+            download_data,
+            config['url'],
+            config['username'],
+            config['password']
+        ),
+        config['cache_file']
     )
+    read_ical(data)
