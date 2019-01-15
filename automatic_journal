@@ -2,22 +2,17 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage automatic_journal <yyyy-mm-dd>" >&2
+if [[ $# -ne 2 ]]; then
+    echo "Usage $0 <config path> <output csv path>" >&2
+    echo "Example: $0 ~/.config/automatic-journal.ini results/journal.csv" >&2
     exit 1
 fi
 
+config_path=$1
+path_out=$2
+
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir"  # This is where the Pipfile is.
-date=$1
 
-for provider_dir in "providers"/*; do
-    echo "=== Running $provider_dir ===" >&2
-    if [[ -f "$provider_dir/main" ]]; then
-        "$provider_dir/main" "$date"
-    elif [[ -f "$provider_dir/main.py" ]]; then
-        pipenv run "$provider_dir/main.py"
-    else
-        echo "No main script found" >&2
-    fi
-done
+lib/call_providers "$config_path" | lib/sort > "$path_out"
+lib/git_commit "$path_out"

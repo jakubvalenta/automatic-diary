@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -euo pipefail
+
+echo "=== Calling all providers ===" >&2
+
+for provider_dir in "providers"/*; do
+    echo "--- Calling $provider_dir ---" >&2
+
+    if [[ -f "$provider_dir/main" ]]; then
+        "$provider_dir/main" "$@"
+    elif [[ -f "$provider_dir/main.py" ]]; then
+        pipenv run "$provider_dir/main.py" "$@"
+    else
+        echo "No main script found" >&2
+    fi
+done
