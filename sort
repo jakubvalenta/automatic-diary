@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sort --field-separator="," --key=1,1 "$@"
