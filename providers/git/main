@@ -3,27 +3,20 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-    echo "Usage git/main.sh <yyyy-mm-dd>" >&2
+    echo "Usage $0 <config path>" >&2
     exit 1
 fi
 
-if [[ -z "$GIT_BASE_PATH" ]]; then
-    echo "Please set the environment variable GIT_BASE_PATH." >&2
-    echo "Example: GIT_BASE_PATH=\"$HOME/devel\"" >&2
+config_path=$1
+
+if ! author=$(jq -er .git.author "$config_path"); then
+    echo "Configuration option .git.author was not found." >&2
     exit 1
 fi
-
-if [[ -z "$GIT_AUTHOR" ]]; then
-    echo "Please set the environment variable GIT_AUTHOR." >&2
-    echo "Example: GIT_AUTHOR=\"Jakub Valenta\"" >&2
+if ! base_path=$(jq -er .git.base_path "$config_path"); then
+    echo "Configuration option .git.base_path was not found." >&2
     exit 1
 fi
-
-date=$1
-date_after="$date 00:00"
-date_before="$date 23:59"
-
-echo "Reading Git logs from $date_after to $date_before" >&2
 
 read_repo_log() {
     repo_path=$1
@@ -31,15 +24,13 @@ read_repo_log() {
     (
         cd "$repo_path" &&
             (git --no-pager log \
-                --author="$GIT_AUTHOR" \
-                --after="$date_after" \
-                --before="$date_before" \
+                --author="$author" \
                 --format="%ad,git,\"$repo_name\",\"%s\"" \
                 --date=iso8601-strict || echo "")
     )
 }
 
-for repo_path in "$GIT_BASE_PATH"/*; do
-    echo "  Reading repository $repo_path" >&2
+for repo_path in "$base_path"/*; do
+    echo "Reading repository $repo_path" >&2
     read_repo_log "$repo_path"
 done

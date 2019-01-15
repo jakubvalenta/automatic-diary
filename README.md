@@ -4,6 +4,7 @@
 
 - Python 3
 - Pipenv
+- jq
 
 ## Installation
 
