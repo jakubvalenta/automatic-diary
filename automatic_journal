@@ -10,15 +10,13 @@ fi
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir"  # This is where the Pipfile is.
 date=$1
-path_out="$dir/results/journal-$date-$(date +%s).csv"
-mkdir -p "$(dirname "$path_out")"
 
 for provider_dir in "providers"/*; do
     echo "=== Running $provider_dir ===" >&2
     if [[ -f "$provider_dir/main" ]]; then
-        "$provider_dir/main" "$date" >> "$path_out"
+        "$provider_dir/main" "$date"
     elif [[ -f "$provider_dir/main.py" ]]; then
-        pipenv run "$provider_dir/main.py" >> "$path_out"
+        pipenv run "$provider_dir/main.py"
     else
         echo "No main script found" >&2
     fi
