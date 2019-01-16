@@ -4,7 +4,7 @@ set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
     echo "Usage $0 <config path> <output csv path>" >&2
-    echo "Example: $0 ~/.config/automatic-journal.ini results/journal.csv" >&2
+    echo "Example: $0 ~/.config/automatic-journal/config.json /tmp/my_repo/journal.csv" >&2
     exit 1
 fi
 
