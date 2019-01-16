@@ -57,14 +57,14 @@ def load_config(path: str) -> dict:
 
 def read_events_data_from_cache(cache_dir: Path) -> Iterator[str]:
     if cache_dir.is_dir():
-        logger.info('Using cached events data')
+        logger.info(f'Reading cache {cache_dir}')
         for cache_file in os.scandir(cache_dir):
             if cache_file.is_file():
                 yield Path(cache_file.path).read_text()
 
 
 def write_events_to_cache(events: Iterator[caldav.Event], cache_dir: Path):
-    logger.info('Writing downloaded events data to cache')
+    logger.info(f'Writing cache {cache_dir}')
     cache_dir.mkdir(parents=True, exist_ok=True)
     for event in events:
         _, event_id = event.url.rsplit('/', maxsplit=1)
