@@ -139,7 +139,7 @@ if __name__ == '__main__':
     _, config_path, path_out = sys.argv
     config = load_config(config_path)
     with open(path_out, 'a', newline='') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator='\n')
         chain(
             download_events,
             parse_ics,
