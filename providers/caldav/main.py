@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def lookup_secret(key: str, val: str) -> str:
-    return subprocess.run(
+    completed_process = subprocess.run(
         [
             'secret-tool',
             'lookup',
@@ -25,6 +25,7 @@ def lookup_secret(key: str, val: str) -> str:
         check=True,
         universal_newlines=True  # Don't use arg 'text' for Python 3.6 compat.
     )
+    return completed_process.stdout
 
 
 def load_config(path: str) -> dict:
@@ -39,8 +40,7 @@ def load_config(path: str) -> dict:
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
-    completed_process = lookup_secret(password_key, password_val)
-    password = completed_process.stdout
+    password = lookup_secret(password_key, password_val)
     return {
         'url': url,
         'username': username,
