@@ -9,6 +9,7 @@ from functools import partial, reduce
 from typing import Iterable, Iterator, Tuple
 
 import requests
+import tzlocal
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -84,8 +85,10 @@ def format_csv(dt_and_text: Iterable[TDateTimeAndText],
                provider: str,
                subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
     for dt, text in dt_and_text:
+        tz = tzlocal.get_localzone()
+        dt_localized = tz.localize(dt)
         yield (
-            dt.strftime('%Y-%m-%d %H:%M:%S %z'),
+            dt_localized.isoformat(),
             provider,
             subprovider,
             text

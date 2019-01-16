@@ -118,7 +118,7 @@ def format_csv(dt_and_text: Iterable[TDateTimeAndText],
     for dt, text in dt_and_text:
         clean_text = re.sub(r'\s+', ' ', text).strip()
         yield (
-            dt.strftime('%Y-%m-%d %H:%M:%S %z'),
+            dt.isoformat(),
             provider,
             subprovider,
             clean_text

@@ -12,6 +12,7 @@ pytest = "*"
 [packages]
 caldav = "*"
 ics = "*"
+tzlocal = "*"
 
 [requires]
 python_version = "3.7"
