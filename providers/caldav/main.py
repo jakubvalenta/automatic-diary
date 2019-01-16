@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Callable, Iterator
 
 import caldav
+import ics
 
 logger = logging.getLogger(__name__)
 
