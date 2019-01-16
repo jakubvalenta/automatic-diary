@@ -1,16 +1,17 @@
 # Automatic Journal
 
-## Pre-requisites
-
-- Python 3
-- Pipenv
-- jq
-
 ## Installation
 
+### Arch Linux
+
 ```
-pipenv install
+# pacman -S pipenv jq libsecret
+$ make setup
 ```
+
+### Windows and Mac
+
+Not supported because of the libsecret dependency.
 
 ## Usage
 
@@ -33,3 +34,15 @@ git init &&
 
 - caldav
 - git
+
+## Development
+
+### Dependencies
+
+- schellcheck: for shell script linting
+
+### Linting
+
+```
+make lint
+```
