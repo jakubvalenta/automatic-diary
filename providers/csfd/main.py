@@ -6,6 +6,7 @@ import json
 import logging
 import sys
 from functools import partial, reduce
+from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 
 import requests
@@ -33,24 +34,39 @@ def load_config(path: str) -> dict:
         config = json.load(f)
     try:
         profile_url = config['csfd']['profile_url']
+        cache_dir = config['csfd']['cache_dir']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
     return {
-        'profile_url': profile_url
+        'profile_url': profile_url,
+        'cache_dir': cache_dir
     }
 
 
-def _download_ratings_page(profile_url: str, page_no: int = 1) -> str:
+def _download_ratings_page(profile_url: str,
+                           cache_dir: Path,
+                           page_no: int = 1) -> str:
+    cache_file = cache_dir / f'{page_no:d}.html'
+    if cache_file.is_file():
+        logger.info(f'Reading cache {cache_file}')
+        return cache_file.read_text()
     page_url = f'{profile_url}hodnoceni/strana-{page_no}/'
     logger.info(f'Downloading {page_url}')
     r = requests.get(page_url, headers=HEADERS)
-    return r.text
+    html = r.text
+    logger.info(f'Writing cache {cache_file}')
+    if cache_file.exists():
+        raise Exception(f'Cache file {cache_file} already exists')
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    cache_file.write_text(html)
+    return html
 
 
 def download_all_ratings_pages(config: dict) -> Iterator[BeautifulSoup]:
     profile_url = config['profile_url']
-    html = _download_ratings_page(profile_url)
+    cache_dir = Path(config['cache_dir'])
+    html = _download_ratings_page(profile_url, cache_dir)
     soup = BeautifulSoup(html, 'html.parser')
     page_links = soup.select('.profile-content .paginator a')
     page_num_links = [node for node in page_links if not node.get('class')]
@@ -59,7 +75,7 @@ def download_all_ratings_pages(config: dict) -> Iterator[BeautifulSoup]:
     logger.info('Found %d pages', last_page_num)
     yield soup
     for page_no in range(2, last_page_num + 1):
-        html = _download_ratings_page(profile_url, page_no)
+        html = _download_ratings_page(profile_url, cache_dir, page_no)
         soup = BeautifulSoup(html, 'html.parser')
         yield soup
 
