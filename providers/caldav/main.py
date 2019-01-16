@@ -86,7 +86,8 @@ if __name__ == '__main__':
         stream=sys.stderr,
         level=logging.INFO,
         format='%(message)s')
-    config = load_config(sys.argv[1])
+    _, config_path, path_out = sys.argv
+    config = load_config(config_path)
     data = with_cache(
         partial(
             download_data,

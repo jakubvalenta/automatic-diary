@@ -2,12 +2,13 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage $0 <config path>" >&2
+if [[ $# -ne 2 ]]; then
+    echo "Usage $0 <config path> <output csv path>" >&2
     exit 1
 fi
 
 config_path=$1
+path_out=$2
 
 if ! author=$(jq -er .git.author "$config_path"); then
     echo "Configuration option .git.author was not found." >&2
@@ -26,11 +27,11 @@ read_repo_log() {
             (git --no-pager log \
                 --author="$author" \
                 --format="%ad,git,\"$repo_name\",\"%s\"" \
-                --date=iso8601-strict || echo "")
+                --date=iso8601-strict || echo -e "")
     )
 }
 
 for repo_path in "$base_path"/*; do
     echo "Reading repository $repo_path" >&2
-    read_repo_log "$repo_path"
+    read_repo_log "$repo_path" >> "$path_out"
 done

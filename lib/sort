@@ -1,5 +1,14 @@
 #!/bin/bash
 
-sort --field-separator="," --key=1,1 "$@"
+set -euo pipefail
 
-echo "=== Finished sorting ===" >&2
+if [[ $# -ne 1 ]]; then
+    echo "Usage $0 <output csv path>" >&2
+    exit 1
+fi
+
+path_out=$1
+
+echo "=== Sorting $path_out ===" >&2
+
+sort --field-separator="," --key=1,1 -o "$1" "$1"

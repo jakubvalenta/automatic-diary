@@ -14,5 +14,7 @@ path_out=$2
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir"  # This is where the Pipfile is.
 
-lib/call_providers "$config_path" | lib/sort > "$path_out"
+rm "$path_out" || true
+lib/call_providers "$config_path" "$path_out"
+lib/sort "$path_out"
 lib/git_commit "$path_out"
