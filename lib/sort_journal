@@ -7,8 +7,8 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
-path_out=$1
+csv_path=$1
 
-echo "=== Sorting $path_out ===" >&2
+echo "=== Sorting $csv_path ===" >&2
 
 sort --field-separator="," --key=1,1 -o "$1" "$1"

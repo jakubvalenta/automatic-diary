@@ -122,9 +122,9 @@ if __name__ == '__main__':
         stream=sys.stderr,
         level=logging.INFO,
         format='%(message)s')
-    _, config_path, path_out = sys.argv
+    _, config_path, csv_path = sys.argv
     config = load_config(config_path)
-    with open(path_out, 'a', newline='') as f:
+    with open(csv_path, 'a', newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         chain(
             download_all_ratings_pages,

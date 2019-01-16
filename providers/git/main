@@ -8,7 +8,7 @@ if [[ $# -ne 2 ]]; then
 fi
 
 config_path=$1
-path_out=$2
+csv_path=$2
 
 if ! author=$(jq -er .git.author "$config_path"); then
     echo "Configuration option .git.author was not found." >&2
@@ -33,5 +33,5 @@ read_repo_log() {
 
 for repo_path in "$base_path"/*; do
     echo "Reading repository $repo_path" >&2
-    read_repo_log "$repo_path" >> "$path_out"
+    read_repo_log "$repo_path" >> "$csv_path"
 done

@@ -9,12 +9,12 @@ if [[ $# -ne 2 ]]; then
 fi
 
 config_path=$1
-path_out=$2
+csv_path=$2
 
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir"  # This is where the Pipfile is.
 
-rm "$path_out" || true
-lib/call_providers "$config_path" "$path_out"
-lib/sort "$path_out"
-lib/git_commit "$path_out"
+rm "$csv_path" || true
+lib/call_providers "$config_path" "$csv_path"
+lib/sort_journal "$csv_path"
+lib/git_commit "$csv_path"

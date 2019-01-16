@@ -7,8 +7,8 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
-path_out=$1
-repo_path="$(dirname "$path_out")"
+csv_path=$1
+repo_path="$(dirname "$csv_path")"
 
 echo "=== Committing repo $repo_path ===" >&2
 
@@ -17,5 +17,5 @@ if ! git --no-pager diff --cached --exit-code; then
     echo "Please unstage all files before committing new journal." >&2
     exit 1
 fi
-git add "$(basename "$path_out")"
+git add "$(basename "$csv_path")"
 git commit -m "journal.csv: Update $(date "+%Y-%m-%d %H:%M:%S %z")"
