@@ -30,11 +30,10 @@ def load_config(path: str) -> dict:
     }
 
 
-def run_shell_cmd(cmd: List[str], *args, **kwargs) -> Optional[str]:
+def run_shell_cmd(cmd: List[str], **kwargs) -> Optional[str]:
     try:
         completed_process = subprocess.run(
             cmd,
-            *args,
             stdout=subprocess.PIPE,
             check=True,
             text=True,

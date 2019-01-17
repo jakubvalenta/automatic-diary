@@ -7,7 +7,6 @@ import logging
 import mailbox
 import sys
 from functools import partial, reduce
-from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,7 @@ def read_messages(config: dict) -> Iterator[TDateTimeAndText]:
     path = config['path']
     maildir = mailbox.Maildir(path)
     for message in maildir:
-        yield ('', '')
+        yield (datetime.datetime.now(), '')
 
 
 def format_csv(dt_and_text: Iterable[TDateTimeAndText],

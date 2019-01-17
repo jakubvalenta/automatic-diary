@@ -34,7 +34,7 @@ def call_providers(providers: List[str], *args, **kwargs):
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
             continue
-        module.main(*args, **kwargs)
+        module.main(*args, **kwargs)  # type: ignore
 
 
 def main():
