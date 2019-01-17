@@ -1,5 +1,9 @@
 # Automatic Journal
 
+## Pre-requisites
+
+- Python 3.7
+
 ## Installation
 
 ### Arch Linux
