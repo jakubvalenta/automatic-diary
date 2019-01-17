@@ -32,7 +32,6 @@ def read_messages(config: dict) -> Iterator[TDateTimeAndText]:
     path = config['path']
     maildir = mailbox.Maildir(path)
     for message in maildir:
-        import ipdb; ipdb.set_trace()
         yield ('', '')
 
 
@@ -54,12 +53,7 @@ def chain(*funcs):
     return wrapped
 
 
-if __name__ == '__main__':
-    logging.basicConfig(
-        stream=sys.stderr,
-        level=logging.INFO,
-        format='%(message)s')
-    _, config_path, csv_path = sys.argv
+def main(config_path: str, csv_path: str):
     config = load_config(config_path)
     with open(csv_path, 'a', newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
