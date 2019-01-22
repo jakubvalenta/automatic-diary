@@ -1,10 +1,9 @@
 import csv
-import datetime
+import io
 import itertools
 import json
 import logging
 import os
-import re
 import subprocess
 import sys
 from functools import partial, reduce
@@ -12,7 +11,8 @@ from pathlib import Path
 from typing import Iterable, Iterator, List, Tuple
 
 import caldav
-import ics
+
+from automatic_journal.providers.icalendar.main import Event, parse_calendar
 
 logger = logging.getLogger(__name__)
 
@@ -96,30 +96,21 @@ def download_events(config: dict) -> List[str]:
     return [event.data for event in events]
 
 
-TDateTimeAndText = Tuple[datetime.datetime, str]
+def parse_events(events_data: Iterable[str]) -> Iterator[Event]:
+    for event_data in events_data:
+        lines = io.StringIO(event_data)
+        yield from parse_calendar(lines)
 
 
-def parse_ics(events_data: Iterable[str]) -> Iterator[TDateTimeAndText]:
-    for i, event_data in enumerate(events_data):
-        try:
-            calendar = ics.Calendar(event_data)
-        except (ValueError, ics.parse.ParseError):
-            logger.error('Failed to parse event %s', event_data)
-            continue
-        for event in calendar.events:
-            yield (event.begin.datetime, event.name)
-
-
-def format_csv(dt_and_text: Iterable[TDateTimeAndText],
+def format_csv(events: Iterable[Event],
                provider: str,
                subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
-    for dt, text in dt_and_text:
-        clean_text = re.sub(r'\s+', ' ', text).strip()
+    for event in events:
         yield (
-            dt.isoformat(),
+            event.one_date.isoformat(),
             provider,
             subprovider,
-            clean_text
+            event.clean_text
         )
 
 
@@ -135,7 +126,11 @@ def main(config_path: str, csv_path: str):
         writer = csv.writer(f, lineterminator='\n')
         chain(
             download_events,
-            parse_ics,
-            partial(format_csv, provider='caldav', subprovider=config['url']),
+            parse_events,
+            partial(
+                format_csv,
+                provider='caldav',
+                subprovider=config['url']
+            ),
             writer.writerows
         )(config)
