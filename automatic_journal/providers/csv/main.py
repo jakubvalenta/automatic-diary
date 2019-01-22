@@ -5,8 +5,9 @@ import logging
 import sys
 from dataclasses import dataclass
 from functools import partial, reduce
-from string import Template
 from typing import Iterable, Iterator, Tuple
+
+import pystache
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +39,14 @@ class Item:
 
 def read_csv(config: dict) -> Iterator[Item]:
     logger.info('Reading CSV file %s', config['path'])
-    date_source_tmpl = Template(config['date_source'])
-    text_source_tmpl = Template(config['text_source'])
+    renderer = pystache.Renderer(escape=lambda u: u)
+    date_source_tmpl = pystache.parse(config['date_source'])
+    text_source_tmpl = pystache.parse(config['text_source'])
     with open(config['path']) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            dt_str = date_source_tmpl.substitute(row)
-            text = text_source_tmpl.substitute(row)
+            dt_str = renderer.render(date_source_tmpl, row)
+            text = renderer.render(text_source_tmpl, row)
             dt = datetime.datetime.strptime(dt_str, config['date_format'])
             yield Item(dt=dt, text=text)
 
