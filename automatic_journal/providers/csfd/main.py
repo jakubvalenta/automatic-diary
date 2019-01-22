@@ -3,18 +3,15 @@ import datetime
 import json
 import logging
 import sys
+from dataclasses import dataclass
 from functools import partial, reduce
 from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 
 import requests
-import tzlocal
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
-
-TDateTimeAndText = Tuple[datetime.datetime, str]
-
 
 HEADERS = {
     'User-Agent':
@@ -40,6 +37,12 @@ def load_config(path: str) -> dict:
         'profile_url': profile_url,
         'cache_dir': cache_dir
     }
+
+
+@dataclass
+class Film:
+    title: str
+    date: datetime.date
 
 
 def _download_ratings_page(profile_url: str,
@@ -78,34 +81,31 @@ def download_all_ratings_pages(config: dict) -> Iterator[BeautifulSoup]:
         yield soup
 
 
-def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[TDateTimeAndText]:
+def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
     for tr in soup.select('.profile-content .ui-table-list tbody tr'):
-        dt = datetime.datetime.strptime(
+        title = tr.find(class_='film').string
+        date = datetime.datetime.strptime(
             tr.find_all('td')[-1].string,
             '%d.%m.%Y'
-        )
-        text = tr.find(class_='film').string
-        logger.info(f'Found film {text} rated on {dt}')
-        yield (dt, text)
+        ).date()
+        logger.info('Found film %s rated on %s', title, date)
+        yield Film(title=title, date=date)
 
 
-def parse_ratings_pages(
-        soups: Iterable[BeautifulSoup]) -> Iterator[TDateTimeAndText]:
+def parse_ratings_pages(soups: Iterable[Film]) -> Iterator[Film]:
     for soup in soups:
         yield from _parse_ratings_page(soup)
 
 
-def format_csv(dt_and_text: Iterable[TDateTimeAndText],
+def format_csv(films: Iterable[Film],
                provider: str,
                subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
-    for dt, text in dt_and_text:
-        tz = tzlocal.get_localzone()
-        dt_localized = tz.localize(dt)
+    for film in films:
         yield (
-            dt_localized.isoformat(),
+            film.date.isoformat(),
             provider,
             subprovider,
-            text
+            film.title
         )
 
 
