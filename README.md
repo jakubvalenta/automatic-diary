@@ -45,6 +45,12 @@ git init &&
 
 - schellcheck: for shell script linting
 
+### Installation
+
+```
+make setup-dev
+```
+
 ### Linting
 
 ```
