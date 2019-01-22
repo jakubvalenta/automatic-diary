@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bc46bc317d0e6ca4a659b912918ff50b79bbbcde4a243019a7637140234dd19c"
+            "sha256": "2791a057f88f852f045d00b344cf96d59415fd34ae2065e232de3c1d1409134b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,9 +18,9 @@
     "default": {
         "arrow": {
             "hashes": [
-                "sha256:3d46d9ecd67765d1e7551e20aa54d1fe93c5fd77d3445aeec2bf8f048670d0b0"
+                "sha256:5c44e897cde7ff54d7336ee2072fd32395a525d070df0e9034ea64029d4a61b5"
             ],
-            "version": "==0.4.2"
+            "version": "==0.11.0"
         },
         "caldav": {
             "hashes": [
@@ -80,12 +80,9 @@
             "version": "==4.5.2"
         },
         "ics": {
-            "hashes": [
-                "sha256:5de36fd69983bb2d16a863c51ae1d02ccc3c1e407d39464d1360fac25697735e",
-                "sha256:8220f6cefd3f53231e8953acbe073313f28314fecbe77d3ffebc8ceef6ad837c"
-            ],
-            "index": "pypi",
-            "version": "==0.4"
+            "editable": true,
+            "git": "https://lab.saloun.cz/jakub/ics.py",
+            "ref": "1ffa6d1dcdc5fed63bfa0b17e589babb001fdd32"
         },
         "idna": {
             "hashes": [
