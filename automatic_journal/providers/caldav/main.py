@@ -19,15 +19,10 @@ logger = logging.getLogger(__name__)
 
 def lookup_secret(key: str, val: str) -> str:
     completed_process = subprocess.run(
-        [
-            'secret-tool',
-            'lookup',
-            key,
-            val,
-        ],
+        ['secret-tool', 'lookup', key, val],
         stdout=subprocess.PIPE,
         check=True,
-        universal_newlines=True  # Don't use arg 'text' for Python 3.6 compat.
+        universal_newlines=True,  # Don't use arg 'text' for Python 3.6 compat.
     )
     return completed_process.stdout
 
@@ -81,16 +76,11 @@ def download_events(config: dict) -> List[str]:
     if events_data:
         return events_data
     logger.info('Connecting to %s', url)
-    client = caldav.DAVClient(
-        url,
-        username=username,
-        password=password
-    )
+    client = caldav.DAVClient(url, username=username, password=password)
     logger.info('Reading principal')
     principal = client.principal()
     events = itertools.chain(
-        calendar.events()
-        for calendar in principal.calendars()
+        calendar.events() for calendar in principal.calendars()
     )
     write_events_to_cache(events, cache_dir)
     return [event.data for event in events]
@@ -102,21 +92,22 @@ def parse_events(events_data: Iterable[str]) -> Iterator[Event]:
         yield from parse_calendar(lines)
 
 
-def format_csv(events: Iterable[Event],
-               provider: str,
-               subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
+def format_csv(
+    events: Iterable[Event], provider: str, subprovider: str
+) -> Iterator[Tuple[str, str, str, str]]:
     for event in events:
         yield (
             event.one_date.isoformat(),
             provider,
             subprovider,
-            event.clean_text
+            event.clean_text,
         )
 
 
 def chain(*funcs):
     def wrapped(initializer):
         return reduce(lambda x, y: y(x), funcs, initializer)
+
     return wrapped
 
 
@@ -127,10 +118,6 @@ def main(config_path: str, csv_path: str):
         chain(
             download_events,
             parse_events,
-            partial(
-                format_csv,
-                provider='caldav',
-                subprovider=config['url']
-            ),
-            writer.writerows
+            partial(format_csv, provider='caldav', subprovider=config['url']),
+            writer.writerows,
         )(config)

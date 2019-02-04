@@ -85,7 +85,7 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Message]:
             to_=_parse_address(message['To']),
             dt=_parse_date(message['Date']),
             sent=sent,
-            path=path
+            path=path,
         )
 
 
@@ -94,20 +94,17 @@ def read_messages(config: dict) -> Iterator[Message]:
     yield from _read_messages(config['sent_pathname'], sent=True)
 
 
-def format_csv(messages: Iterable[Message],
-               provider: str) -> Iterator[Tuple[str, str, str, str]]:
+def format_csv(
+    messages: Iterable[Message], provider: str
+) -> Iterator[Tuple[str, str, str, str]]:
     for message in messages:
-        yield (
-            message.dt.isoformat(),
-            provider,
-            message.path,
-            message.text
-        )
+        yield (message.dt.isoformat(), provider, message.path, message.text)
 
 
 def chain(*funcs):
     def wrapped(initializer):
         return reduce(lambda x, y: y(x), funcs, initializer)
+
     return wrapped
 
 
@@ -117,9 +114,6 @@ def main(config_path: str, csv_path: str):
         writer = csv.writer(f, lineterminator='\n')
         chain(
             read_messages,
-            partial(
-                format_csv,
-                provider='maildir'
-            ),
-            writer.writerows
+            partial(format_csv, provider='maildir'),
+            writer.writerows,
         )(config)

@@ -51,21 +51,17 @@ def read_csv(config: dict) -> Iterator[Item]:
             yield Item(dt=dt, text=text)
 
 
-def format_csv(items: Iterable[Item],
-               provider: str,
-               subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
+def format_csv(
+    items: Iterable[Item], provider: str, subprovider: str
+) -> Iterator[Tuple[str, str, str, str]]:
     for item in items:
-        yield (
-            item.dt.isoformat(),
-            provider,
-            subprovider,
-            item.text
-        )
+        yield (item.dt.isoformat(), provider, subprovider, item.text)
 
 
 def chain(*funcs):
     def wrapped(initializer):
         return reduce(lambda x, y: y(x), funcs, initializer)
+
     return wrapped
 
 
@@ -75,10 +71,6 @@ def main(config_path: str, csv_path: str):
         writer = csv.writer(f, lineterminator='\n')
         chain(
             read_csv,
-            partial(
-                format_csv,
-                provider='csv',
-                subprovider=config['path']
-            ),
-            writer.writerows
+            partial(format_csv, provider='csv', subprovider=config['path']),
+            writer.writerows,
         )(config)

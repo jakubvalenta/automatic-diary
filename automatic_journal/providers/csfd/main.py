@@ -14,10 +14,8 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 HEADERS = {
-    'User-Agent':
-    'Mozilla/5.0 (X11; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',
-    'Accept':
-    'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',  # noqa: E501
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',  # noqa: E501
     'Accept-Language': 'en-US,en;q=0.5',
     'DNT': '1',
     'Referer': 'https://www.csfd.cz/',
@@ -33,10 +31,7 @@ def load_config(path: str) -> dict:
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
-    return {
-        'profile_url': profile_url,
-        'cache_dir': cache_dir
-    }
+    return {'profile_url': profile_url, 'cache_dir': cache_dir}
 
 
 @dataclass
@@ -45,9 +40,9 @@ class Film:
     date: datetime.date
 
 
-def _download_ratings_page(profile_url: str,
-                           cache_dir: Path,
-                           page_no: int = 1) -> str:
+def _download_ratings_page(
+    profile_url: str, cache_dir: Path, page_no: int = 1
+) -> str:
     cache_file = cache_dir / f'{page_no:d}.html'
     if cache_file.is_file():
         logger.info(f'Reading cache {cache_file}')
@@ -85,8 +80,7 @@ def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
     for tr in soup.select('.profile-content .ui-table-list tbody tr'):
         title = tr.find(class_='film').string
         date = datetime.datetime.strptime(
-            tr.find_all('td')[-1].string,
-            '%d.%m.%Y'
+            tr.find_all('td')[-1].string, '%d.%m.%Y'
         ).date()
         logger.info('Found film %s rated on %s', title, date)
         yield Film(title=title, date=date)
@@ -97,21 +91,17 @@ def parse_ratings_pages(soups: Iterable[Film]) -> Iterator[Film]:
         yield from _parse_ratings_page(soup)
 
 
-def format_csv(films: Iterable[Film],
-               provider: str,
-               subprovider: str) -> Iterator[Tuple[str, str, str, str]]:
+def format_csv(
+    films: Iterable[Film], provider: str, subprovider: str
+) -> Iterator[Tuple[str, str, str, str]]:
     for film in films:
-        yield (
-            film.date.isoformat(),
-            provider,
-            subprovider,
-            film.title
-        )
+        yield (film.date.isoformat(), provider, subprovider, film.title)
 
 
 def chain(*funcs):
     def wrapped(initializer):
         return reduce(lambda x, y: y(x), funcs, initializer)
+
     return wrapped
 
 
@@ -123,9 +113,7 @@ def main(config_path: str, csv_path: str):
             download_all_ratings_pages,
             parse_ratings_pages,
             partial(
-                format_csv,
-                provider='csfd',
-                subprovider=config['profile_url']
+                format_csv, provider='csfd', subprovider=config['profile_url']
             ),
-            writer.writerows
+            writer.writerows,
         )(config)

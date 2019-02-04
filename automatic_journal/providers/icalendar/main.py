@@ -23,9 +23,7 @@ def load_config(path: str) -> dict:
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
-    return {
-        'paths': paths,
-    }
+    return {'paths': paths}
 
 
 @dataclass
@@ -38,9 +36,7 @@ class Event:
     def from_ics_event(cls, event: ics.Event):
         # TODO: multiple days
         return cls(
-            _name=event.name,
-            begin=event.begin.datetime,
-            all_day=event.all_day
+            _name=event.name, begin=event.begin.datetime, all_day=event.all_day
         )
 
     @property
@@ -98,20 +94,17 @@ def read_all_calendars(config: dict) -> Iterator[Tuple[Event, str]]:
                 unique_events.append(event)
 
 
-def format_csv(events_and_paths: Iterable[Tuple[Event, str]],
-               provider: str) -> Iterator[Tuple[str, str, str, str]]:
+def format_csv(
+    events_and_paths: Iterable[Tuple[Event, str]], provider: str
+) -> Iterator[Tuple[str, str, str, str]]:
     for event, path in events_and_paths:
-        yield (
-            event.one_date.isoformat(),
-            provider,
-            path,
-            event.clean_text
-        )
+        yield (event.one_date.isoformat(), provider, path, event.clean_text)
 
 
 def chain(*funcs):
     def wrapped(initializer):
         return reduce(lambda x, y: y(x), funcs, initializer)
+
     return wrapped
 
 
@@ -121,9 +114,6 @@ def main(config_path: str, csv_path: str):
         writer = csv.writer(f, lineterminator='\n')
         chain(
             read_all_calendars,
-            partial(
-                format_csv,
-                provider='calendar'
-            ),
-            writer.writerows
+            partial(format_csv, provider='calendar'),
+            writer.writerows,
         )(config)
