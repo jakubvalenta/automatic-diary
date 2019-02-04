@@ -35,7 +35,7 @@ def read_todotxt(config: dict) -> Iterator[Item]:
             m = re.match(
                 (
                     r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'
-                    r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)$'
+                    r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
                 ),
                 line,
             )
