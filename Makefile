@@ -1,4 +1,4 @@
-.PHONY: run setup setup-dev lint lint-shell lint-python help
+.PHONY: run setup setup-dev lint lint-shell lint-python reformat help
 
 run:  ## Run automatic journal
 	./automatic_journal
@@ -20,6 +20,9 @@ lint-shell:  ## Run only shell script linting
 
 lint-python:  ## Run only Python linting
 	tox -e lint
+
+reformat:
+	black -l 79 --skip-string-normalization automatic_journal
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'
