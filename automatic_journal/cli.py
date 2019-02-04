@@ -4,7 +4,7 @@ import json
 import logging
 import os.path
 import sys
-from typing import List
+from typing import List, Optional
 
 from automatic_journal import __title__
 
@@ -13,11 +13,13 @@ logger = logging.getLogger(__name__)
 dir_ = os.path.dirname(__file__)
 
 
-def load_config(path: str) -> dict:
+def load_config(path: str, only_providers: Optional[List[str]] = None) -> dict:
     with open(path) as f:
         config = json.load(f)
     try:
-        providers = list(config.keys())
+        providers = [
+            k for k in config.keys() if only_providers and k in only_providers
+        ]
     except (AttributeError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -40,6 +42,16 @@ def main():
     parser.add_argument('config_path', help='Configuration file path')
     parser.add_argument('output_csv_path', help='Output CSV file path')
     parser.add_argument(
+        '-p',
+        '--provider',
+        action='append',
+        help=(
+            'Provider to use. Pass the option several times to use several '
+            'providers. If not passed at all, all configured providers will '
+            'be used.'
+        ),
+    )
+    parser.add_argument(
         '-v', '--verbose', action='store_true', help='Enable debugging output'
     )
     parser.add_argument(
@@ -53,7 +65,7 @@ def main():
     if args.clean:
         pass  # TODO
     else:
-        config = load_config(args.config_path)
+        config = load_config(args.config_path, args.provider)
         call_providers(
             config['providers'], args.config_path, args.output_csv_path
         )
