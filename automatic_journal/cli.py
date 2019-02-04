@@ -18,7 +18,9 @@ def load_config(path: str, only_providers: Optional[List[str]] = None) -> dict:
         config = json.load(f)
     try:
         providers = [
-            k for k in config.keys() if only_providers and k in only_providers
+            k
+            for k in config.keys()
+            if not only_providers or k in only_providers
         ]
     except (AttributeError, TypeError):
         logger.error('Invalid config')
