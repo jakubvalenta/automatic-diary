@@ -7,7 +7,7 @@ import re
 import sys
 from dataclasses import dataclass
 from functools import partial, reduce
-from typing import Iterable, Iterator, Set, Tuple, Union
+from typing import Iterable, Iterator, List, Tuple, Union
 
 import ics
 import ics.parse
@@ -86,12 +86,12 @@ TEventAndPath = Tuple[Event, str]
 
 
 def read_all_calendars(config: dict) -> Iterator[Tuple[Event, str]]:
-    unique_events: Set[Event] = set()
+    unique_events: List[Event] = []
     for path in config['paths']:
         for event in read_calendar(path):
             if event not in unique_events:
                 yield event, path
-                unique_events.add(event)
+                unique_events.append(event)
 
 
 def format_csv(
