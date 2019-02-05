@@ -43,32 +43,31 @@ class Status:
         return re.sub(r'\s+', ' ', self.text).strip()
 
 
-def _parse_wall_page(soup: BeautifulSoup) -> Iterator[Status]:
+def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
     for p in soup.find_all('p'):
         comment_el = p.find(class_='comment')
         if not comment_el:
             continue
         text = comment_el.string
+        if not text or re.search(
+            r'hat an .+ teilgenommen|hat .+ abonniert\.$', str(p.contents[1])
+        ):
+            logger.warn('Not a status, skipping: "%s"', text)
+            continue
         dt_str = p.find(class_='meta').string
         dt = parse_date_time(dt_str)
         logger.info('Found status from %s: %s', dt, text)
         yield Status(dt=dt, text=text)
 
 
-parsers = {'wall.htm': _parse_wall_page}
-
-
-def parse_all_pages(config: dict) -> Iterator[Tuple[Status, str]]:
+def parse_all_archives(config: dict) -> Iterator[Tuple[Status, str]]:
     for path in config['paths']:
-        for path_end, parser in parsers.items():
-            if path.endswith(path_end):
-                with open(path) as f:
-                    html = f.read()
-                soup = BeautifulSoup(html, 'html.parser')
-                for status in parser(soup):
-                    yield status, path
-                return
-        raise Exception(f'No parser found for path {path}')
+        logger.info('Reading Facebook archive %s', path)
+        with open(path) as f:
+            html = f.read()
+            soup = BeautifulSoup(html, 'html.parser')
+            for status in _parse_timeline_page(soup):
+                yield status, path
 
 
 def format_csv(
@@ -90,7 +89,7 @@ def main(config_path: str, csv_path: str):
     with open(csv_path, 'a', newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         chain(
-            parse_all_pages,
+            parse_all_archives,
             partial(format_csv, provider='facebook'),
             writer.writerows,
         )(config)
