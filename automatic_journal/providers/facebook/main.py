@@ -43,15 +43,24 @@ class Status:
         return re.sub(r'\s+', ' ', self.text).strip()
 
 
+filter_regex = re.compile(
+    '|'.join(
+        [
+            r'hat an .+ teilgenommen\.',
+            r'hat .+ abonniert\.',
+            r'hat eine private Veranstaltung erstellt\.',
+        ]
+    )
+)
+
+
 def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
     for p in soup.find_all('p'):
         comment_el = p.find(class_='comment')
         if not comment_el:
             continue
         text = comment_el.string
-        if not text or re.search(
-            r'hat an .+ teilgenommen|hat .+ abonniert\.$', str(p.contents[1])
-        ):
+        if not text or filter_regex.search(str(p.contents[1])):
             logger.warn('Not a status, skipping: "%s"', text)
             continue
         dt_str = p.find(class_='meta').string
