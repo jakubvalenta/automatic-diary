@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f081e7eb7abb191cffeb30ded528ddd0d5937c80d6cb3ab27f928598f34bffe9"
+            "sha256": "822516486114600246f364ea2bed9e056ca419d0482221134a36353f447daf63"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -79,6 +79,14 @@
             ],
             "version": "==4.5.2"
         },
+        "dateparser": {
+            "hashes": [
+                "sha256:940828183c937bcec530753211b70f673c0a9aab831e43273489b310538dff86",
+                "sha256:b452ef8b36cd78ae86a50721794bc674aa3994e19b570f7ba92810f4e0a2ae03"
+            ],
+            "index": "pypi",
+            "version": "==0.7.0"
+        },
         "ics": {
             "editable": true,
             "git": "https://lab.saloun.cz/jakub/ics.py",
@@ -151,6 +159,20 @@
             ],
             "version": "==2018.9"
         },
+        "regex": {
+            "hashes": [
+                "sha256:03a42220f638f5b6e80f688645bb1e8598e074df16a33106126d3ccbe4c01bfd",
+                "sha256:0be9a895dab15b1d31505680bf0fe2f717f602edeeeb46f87c44878c7910ece5",
+                "sha256:1afef5d9ba1f29b369b4133571f2190bd918e3b7d572df0b922168aec209bbda",
+                "sha256:33f8fa1561110cafcab93a53d37c77508e8ba8addf8b2a6ac31e4b2c1afa631b",
+                "sha256:54ff106533b222eb0201f48cdeaa587e9e03a8767901e60bd6288239970d2b55",
+                "sha256:b4d13198acfac8b96abeb72224075f4a043db203214d27c6309b1a778f2304ac",
+                "sha256:c645a577c7b56fd592cff9b05e513bc077740f338d3e64d1364390ffc2a536d7",
+                "sha256:e7a957eac79ec9318199f67bf7d041c3c55f2e8b780c68b2403bd29d1863d6d7",
+                "sha256:f5707f7f30994e2b0bf9c62db43f8a8d04b940de89685c644deeb93733cafd7a"
+            ],
+            "version": "==2019.2.5"
+        },
         "requests": {
             "hashes": [
                 "sha256:502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e",
@@ -200,6 +222,14 @@
                 "sha256:ca4be454458f9dec299268d472aaa5a11f67a4ff70093396e1ceae9c76cf4bbb"
             ],
             "version": "==18.2.0"
+        },
+        "ddt": {
+            "hashes": [
+                "sha256:68fe764903149edf84b02952c9a67792c9a62d104c730588fe8b1ee40944b33d",
+                "sha256:898364fc34b27981b925171a0011c174c94633cb678eb1fac05fe7a234c7912c"
+            ],
+            "index": "pypi",
+            "version": "==1.2.0"
         },
         "entrypoints": {
             "hashes": [

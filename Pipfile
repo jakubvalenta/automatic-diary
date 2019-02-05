@@ -8,12 +8,14 @@ verify_ssl = true
 isort = "*"
 mypy = "*"
 pytest = "*"
+ddt = "*"
 
 [packages]
 caldav = "*"
 tzlocal = "*"
 ics = {editable = true,git = "https://lab.saloun.cz/jakub/ics.py"}
 pystache = "*"
+dateparser = "*"
 
 [requires]
 python_version = "3.7"

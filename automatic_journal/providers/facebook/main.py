@@ -8,24 +8,17 @@ from dataclasses import dataclass
 from functools import partial, reduce
 from typing import Iterable, Iterator, Tuple
 
+import dateparser
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
 
-def parse_date_time(dt_str: str) -> datetime.datetime:
-    m = re.search(
-        r'(?P<month>\S+) (?P<day>\d{1,2}), (?P<year>\d{4}) at '
-        r'(?P<hour>\d{1,2}):(?P<minute>\d{1,2})(?P<am_or_pm>am|pm) '
-        r'UTC(?P<tz>[+-]\d{2})$',
-        dt_str,
-    )
-    if not m:
-        raise Exception(f'Failed to parse date {dt_str}')
-    dt_str_full_numbers = (
-        '{month} {day:>02} {year} {hour:>02}:{minute}{am_or_pm} {tz:<05}'
-    ).format(**m.groupdict())
-    dt = datetime.datetime.strptime(dt_str_full_numbers, '%B %d %Y %I:%M%p %z')
+def parse_date_time(s: str) -> datetime.datetime:
+    s = re.sub(r'\s\S{2}\s', ' ', s)  # remove "at", "um"...
+    s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
+    s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
+    dt = dateparser.parse(s)
     return dt
 
 
