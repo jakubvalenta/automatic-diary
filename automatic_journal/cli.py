@@ -21,9 +21,12 @@ class Row:
     item: Item
     provider: str
 
-    def __hash__(self) -> int:
-        return hash(
-            (getattr(self, 'item', None), getattr(self, 'provider', None))
+    def astuple(self) -> Tuple[str, str, str, str]:
+        return (
+            self.item.dt_str,
+            self.provider,
+            self.item.subprovider,
+            self.item.text,
         )
 
 
@@ -61,15 +64,12 @@ def write_csv(rows: Iterable[Row], path: str):
     with open(path, 'a') as f:
         writer = csv.writer(f, lineterminator='\n')
         sorted_rows: List[Row] = sorted(rows, key=lambda row: row.item)
-        writer.writerows(
-            (
-                row.item.dt_str,
-                row.provider,
-                row.item.subprovider,
-                row.item.text,
-            )
-            for row in sorted_rows
-        )
+        encountered_row_tuples: Set[Tuple[str, str, str, str]] = set()
+        for row in sorted_rows:
+            row_tuple = row.astuple()
+            if row_tuple not in encountered_row_tuples:
+                writer.writerow(row_tuple)
+                encountered_row_tuples.add(row_tuple)
 
 
 def main():
