@@ -1,36 +1,26 @@
-import csv
 import datetime
-import json
 import logging
 import re
 import sys
-from dataclasses import dataclass
-from functools import partial, reduce
-from typing import Iterable, Iterator, Tuple
+from typing import Iterator
+
+from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        path = config['todotxt']['path']
+        path = config_json['todotxt']['path']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
     return {'path': path}
 
 
-@dataclass
-class Item:
-    dt: datetime.datetime
-    text: str
-
-
-def read_todotxt(config: dict) -> Iterator[Item]:
-    logger.info('Reading todo.txt file %s', config['path'])
-    with open(config['path']) as f:
+def read_todotxt(path: str) -> Iterator[Item]:
+    logger.info('Reading todo.txt file %s', path)
+    with open(path) as f:
         for line in f:
             m = re.match(
                 (
@@ -45,31 +35,9 @@ def read_todotxt(config: dict) -> Iterator[Item]:
                 int(m.group('y')), int(m.group('m')), int(m.group('d'))
             )
             text = m.group('text')
-            yield Item(dt=dt, text=text)
+            yield Item(dt=dt, text=text, subprovider=path)
 
 
-def format_csv(
-    items: Iterable[Item], provider: str, subprovider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for item in items:
-        yield (item.dt.isoformat(), provider, subprovider, item.text)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            read_todotxt,
-            partial(
-                format_csv, provider='todotxt', subprovider=config['path']
-            ),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return read_todotxt(config['path'])

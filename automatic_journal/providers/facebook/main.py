@@ -1,15 +1,14 @@
-import csv
 import datetime
-import json
 import logging
 import re
 import sys
 from dataclasses import dataclass
-from functools import partial, reduce
-from typing import Iterable, Iterator, Tuple
+from typing import Iterator
 
 import dateparser
 from bs4 import BeautifulSoup
+
+from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +21,9 @@ def parse_date_time(s: str) -> datetime.datetime:
     return dt
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        paths = config['facebook']['paths']
+        paths = config_json['facebook']['paths']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -37,10 +34,6 @@ def load_config(path: str) -> dict:
 class Status:
     dt: datetime.datetime
     text: str
-
-    @property
-    def clean_text(self):
-        return re.sub(r'\s+', ' ', self.text).strip()
 
 
 filter_regex = re.compile(
@@ -69,36 +62,16 @@ def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
         yield Status(dt=dt, text=text)
 
 
-def parse_all_archives(config: dict) -> Iterator[Tuple[Status, str]]:
+def parse_all_archives(config: dict) -> Iterator[Item]:
     for path in config['paths']:
         logger.info('Reading Facebook archive %s', path)
         with open(path) as f:
             html = f.read()
             soup = BeautifulSoup(html, 'html.parser')
             for status in _parse_timeline_page(soup):
-                yield status, path
+                yield Item(dt=status.dt, text=status.text, subprovider=path)
 
 
-def format_csv(
-    statuses_and_paths: Iterable[Tuple[Status, str]], provider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for status, path in statuses_and_paths:
-        yield (status.dt.isoformat(), provider, path, status.clean_text)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            parse_all_archives,
-            partial(format_csv, provider='facebook'),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return parse_all_archives(config)

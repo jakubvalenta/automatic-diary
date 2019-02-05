@@ -15,5 +15,4 @@ cd "$dir"  # This is where the Pipfile is.
 
 rm "$csv_path" || true
 pipenv run python3 -m automatic_journal "$@"
-lib/sort_journal "$csv_path"
 # lib/git_commit "$csv_path"  # TODO: Maybe remove this feature altogether?

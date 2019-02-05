@@ -1,27 +1,24 @@
-import csv
 import datetime
 import email
 import email.header
 import email.utils
 import glob
-import json
 import logging
 import sys
 from dataclasses import dataclass
-from functools import partial, reduce
-from typing import Iterable, Iterator, Tuple, Union
+from typing import Iterator, Union
+
+from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
 
 THeader = Union[str, email.header.Header, None]
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        received_pathname = config['maildir']['received_pathname']
-        sent_pathname = config['maildir']['sent_pathname']
+        received_pathname = config_json['maildir']['received_pathname']
+        sent_pathname = config_json['maildir']['sent_pathname']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -73,7 +70,7 @@ class Message:
         return f'From {self.from_}: {self.subject}'.strip()
 
 
-def _read_messages(pathname: str, sent: bool) -> Iterator[Tuple[Message, str]]:
+def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
     for path in glob.glob(pathname):
         logger.info('Reading message %s', path)
         with open(path, 'rb') as f:
@@ -85,34 +82,14 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Tuple[Message, str]]:
             dt=_parse_date(email_message['Date']),
             sent=sent,
         )
-        yield message, pathname
+        yield Item(dt=message.dt, text=message.text, subprovider=pathname)
 
 
-def read_messages(config: dict) -> Iterator[Tuple[Message, str]]:
+def read_messages(config: dict) -> Iterator[Item]:
     yield from _read_messages(config['received_pathname'], sent=False)
     yield from _read_messages(config['sent_pathname'], sent=True)
 
 
-def format_csv(
-    messages_and_pathnames: Iterable[Tuple[Message, str]], provider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for message, pathname in messages_and_pathnames:
-        yield (message.dt.isoformat(), provider, pathname, message.text)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            read_messages,
-            partial(format_csv, provider='maildir'),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return read_messages(config)

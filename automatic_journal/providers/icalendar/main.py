@@ -1,25 +1,21 @@
-import csv
 import datetime
-import json
 import logging
 import quopri
-import re
 import sys
 from dataclasses import dataclass
-from functools import partial, reduce
-from typing import Iterable, Iterator, List, Tuple, Union
+from typing import Iterable, Iterator, List, Union
 
 import ics
 import ics.parse
 
+from automatic_journal.common import Item
+
 logger = logging.getLogger(__name__)
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        paths = config['icalendar']['paths']
+        paths = config_json['icalendar']['paths']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -45,10 +41,6 @@ class Event:
             return quopri.decodestring(self._name).decode()
         except ValueError:
             return self._name
-
-    @property
-    def clean_text(self):
-        return re.sub(r'\s+', ' ', self.name).strip()
 
     @property
     def one_date(self) -> Union[datetime.datetime, datetime.date]:
@@ -82,35 +74,17 @@ def read_calendar(path: str) -> Iterator[Event]:
         yield from parse_calendar(f)
 
 
-def read_all_calendars(config: dict) -> Iterator[Tuple[Event, str]]:
+def read_all_calendars(config: dict) -> Iterator[Item]:
     unique_events: List[Event] = []
     for path in config['paths']:
         for event in read_calendar(path):
             if event not in unique_events:
-                yield event, path
+                yield Item(
+                    dt=event.one_date, text=event.name, subprovider=path
+                )
                 unique_events.append(event)
 
 
-def format_csv(
-    events_and_paths: Iterable[Tuple[Event, str]], provider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for event, path in events_and_paths:
-        yield (event.one_date.isoformat(), provider, path, event.clean_text)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            read_all_calendars,
-            partial(format_csv, provider='calendar'),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return read_all_calendars(config)

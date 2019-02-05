@@ -1,15 +1,15 @@
-import csv
 import datetime
-import json
 import logging
 import sys
 from dataclasses import dataclass
-from functools import partial, reduce
+from functools import partial
 from pathlib import Path
-from typing import Iterable, Iterator, Tuple
+from typing import Iterable, Iterator
 
 import requests
 from bs4 import BeautifulSoup
+
+from automatic_journal.common import Item, chain
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,10 @@ HEADERS = {
 }
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        profile_url = config['csfd']['profile_url']
-        cache_dir = config['csfd']['cache_dir']
+        profile_url = config_json['csfd']['profile_url']
+        cache_dir = config_json['csfd']['cache_dir']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -86,34 +84,17 @@ def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
         yield Film(title=title, date=date)
 
 
-def parse_ratings_pages(soups: Iterable[Film]) -> Iterator[Film]:
+def parse_ratings_pages(
+    soups: Iterable[BeautifulSoup], subprovider: str
+) -> Iterator[Item]:
     for soup in soups:
-        yield from _parse_ratings_page(soup)
+        for film in _parse_ratings_page(soup):
+            yield Item(dt=film.date, text=film.title, subprovider=subprovider)
 
 
-def format_csv(
-    films: Iterable[Film], provider: str, subprovider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for film in films:
-        yield (film.date.isoformat(), provider, subprovider, film.title)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            download_all_ratings_pages,
-            parse_ratings_pages,
-            partial(
-                format_csv, provider='csfd', subprovider=config['profile_url']
-            ),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return chain(
+        download_all_ratings_pages,
+        partial(parse_ratings_pages, subprovider=config['profile_url']),
+    )(config)

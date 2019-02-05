@@ -1,18 +1,17 @@
-import csv
 import io
 import itertools
-import json
 import logging
 import os
 import subprocess
 import sys
-from functools import partial, reduce
+from functools import partial
 from pathlib import Path
-from typing import Iterable, Iterator, List, Tuple
+from typing import Iterable, Iterator, List
 
 import caldav
 
-from automatic_journal.providers.icalendar.main import Event, parse_calendar
+from automatic_journal.common import Item, chain
+from automatic_journal.providers.icalendar.main import parse_calendar
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +26,13 @@ def lookup_secret(key: str, val: str) -> str:
     return completed_process.stdout
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        url = config['caldav']['url']
-        username = config['caldav']['username']
-        password_key = config['caldav']['password_key']
-        password_val = config['caldav']['password_val']
-        cache_dir = config['caldav']['cache_dir']
+        url = config_json['caldav']['url']
+        username = config_json['caldav']['username']
+        password_key = config_json['caldav']['password_key']
+        password_val = config_json['caldav']['password_val']
+        cache_dir = config_json['caldav']['cache_dir']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
@@ -86,38 +83,19 @@ def download_events(config: dict) -> List[str]:
     return [event.data for event in events]
 
 
-def parse_events(events_data: Iterable[str]) -> Iterator[Event]:
+def parse_events(
+    events_data: Iterable[str], subprovider: str
+) -> Iterator[Item]:
     for event_data in events_data:
         lines = io.StringIO(event_data)
-        yield from parse_calendar(lines)
+        for event in parse_calendar(lines):
+            yield Item(
+                dt=event.one_date, text=event.name, subprovider=subprovider
+            )
 
 
-def format_csv(
-    events: Iterable[Event], provider: str, subprovider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for event in events:
-        yield (
-            event.one_date.isoformat(),
-            provider,
-            subprovider,
-            event.clean_text,
-        )
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            download_events,
-            parse_events,
-            partial(format_csv, provider='caldav', subprovider=config['url']),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return chain(
+        download_events, partial(parse_events, subprovider=config['url'])
+    )(config)

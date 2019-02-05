@@ -1,40 +1,26 @@
-import csv
 import datetime
 import glob
 import json
 import logging
 import os.path
-import re
 import sys
-from dataclasses import dataclass
-from functools import partial, reduce
-from typing import Iterable, Iterator, Tuple
+from typing import Iterator
+
+from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
 
 
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        config = json.load(f)
+def load_config(config_json: dict) -> dict:
     try:
-        paths = config['twitter']['paths']
+        paths = config_json['twitter']['paths']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
     return {'paths': paths}
 
 
-@dataclass
-class Tweet:
-    dt: datetime.datetime
-    text: str
-
-    @property
-    def clean_text(self):
-        return re.sub(r'\s+', ' ', self.text).strip()
-
-
-def _parse_tweets_file(path: str) -> Iterator[Tweet]:
+def _parse_tweets_file(path: str) -> Iterator[Item]:
     with open(path) as f:
         f.readline()  # Skip first line, which is not JSOn
         tweets_data = json.load(f)
@@ -42,38 +28,18 @@ def _parse_tweets_file(path: str) -> Iterator[Tweet]:
         dt_str = tweet_data['created_at']
         dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S %z')
         text = tweet_data['text']
-        yield Tweet(dt=dt, text=text)
+        screen_name = tweet_data['user']['screen_name']
+        yield Item(dt=dt, text=text, subprovider=screen_name)
 
 
-def parse_all_archives(config: dict) -> Iterator[Tuple[Tweet, str]]:
+def parse_all_archives(config: dict) -> Iterator[Item]:
     for path in config['paths']:
         logger.info('Reading Twitter archive %s', path)
         pathname = os.path.join(path, 'data', 'js', 'tweets', '*.js')
         for tweets_file_path in glob.glob(pathname):
-            for tweet in _parse_tweets_file(tweets_file_path):
-                yield tweet, path
+            yield from _parse_tweets_file(tweets_file_path)
 
 
-def format_csv(
-    tweets_and_paths: Iterable[Tuple[Tweet, str]], provider: str
-) -> Iterator[Tuple[str, str, str, str]]:
-    for tweet, path in tweets_and_paths:
-        yield (tweet.dt.isoformat(), provider, path, tweet.clean_text)
-
-
-def chain(*funcs):
-    def wrapped(initializer):
-        return reduce(lambda x, y: y(x), funcs, initializer)
-
-    return wrapped
-
-
-def main(config_path: str, csv_path: str):
-    config = load_config(config_path)
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        chain(
-            parse_all_archives,
-            partial(format_csv, provider='twitter'),
-            writer.writerows,
-        )(config)
+def main(config_json: dict):
+    config = load_config(config_json)
+    return parse_all_archives(config)
