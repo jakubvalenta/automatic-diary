@@ -1,4 +1,4 @@
-.PHONY: run setup setup-dev lint lint-shell lint-python reformat help
+.PHONY: run setup setup-dev test lint lint-shell lint-python reformat help
 
 run:  ## Run automatic journal
 	./automatic_journal
@@ -9,6 +9,9 @@ setup:  ## Create Pipenv virtual environment and install dependencies.
 
 setup-dev:  ## Install development dependencies
 	pipenv install --dev
+
+test:  ## Run unit tests
+	tox -e py37
 
 lint: | lint-shell lint-python  ## Run all linting
 
