@@ -82,9 +82,6 @@ def read_calendar(path: str) -> Iterator[Event]:
         yield from parse_calendar(f)
 
 
-TEventAndPath = Tuple[Event, str]
-
-
 def read_all_calendars(config: dict) -> Iterator[Tuple[Event, str]]:
     unique_events: List[Event] = []
     for path in config['paths']:
