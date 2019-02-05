@@ -69,8 +69,8 @@ class Message:
     @property
     def text(self):
         if self.sent:
-            return f'To {self.to_}: {self.subject}'
-        return f'From {self.from_}: {self.subject}'
+            return f'To {self.to_}: {self.subject}'.strip()
+        return f'From {self.from_}: {self.subject}'.strip()
 
 
 def _read_messages(pathname: str, sent: bool) -> Iterator[Tuple[Message, str]]:
