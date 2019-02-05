@@ -65,7 +65,6 @@ class Message:
     to_: str
     dt: datetime.datetime
     sent: bool
-    path: str
 
     @property
     def text(self):
@@ -74,31 +73,31 @@ class Message:
         return f'From {self.from_}: {self.subject}'
 
 
-def _read_messages(pathname: str, sent: bool) -> Iterator[Message]:
+def _read_messages(pathname: str, sent: bool) -> Iterator[Tuple[Message, str]]:
     for path in glob.glob(pathname):
         logger.info('Reading message %s', path)
         with open(path, 'rb') as f:
-            message = email.message_from_binary_file(f)
-        yield Message(
-            subject=_decode_header(message['Subject']),
-            from_=_parse_address(message['From']),
-            to_=_parse_address(message['To']),
-            dt=_parse_date(message['Date']),
+            email_message = email.message_from_binary_file(f)
+        message = Message(
+            subject=_decode_header(email_message['Subject']),
+            from_=_parse_address(email_message['From']),
+            to_=_parse_address(email_message['To']),
+            dt=_parse_date(email_message['Date']),
             sent=sent,
-            path=path,
         )
+        yield message, pathname
 
 
-def read_messages(config: dict) -> Iterator[Message]:
+def read_messages(config: dict) -> Iterator[Tuple[Message, str]]:
     yield from _read_messages(config['received_pathname'], sent=False)
     yield from _read_messages(config['sent_pathname'], sent=True)
 
 
 def format_csv(
-    messages: Iterable[Message], provider: str
+    messages_and_pathnames: Iterable[Tuple[Message, str]], provider: str
 ) -> Iterator[Tuple[str, str, str, str]]:
-    for message in messages:
-        yield (message.dt.isoformat(), provider, message.path, message.text)
+    for message, pathname in messages_and_pathnames:
+        yield (message.dt.isoformat(), provider, pathname, message.text)
 
 
 def chain(*funcs):
