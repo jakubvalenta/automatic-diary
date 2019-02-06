@@ -47,7 +47,7 @@ class Item:
             )
         )
 
-    def __eq__(self, other: 'Item') -> int:
+    def __eq__(self, other: object) -> bool:
         for prop in ('dt', 'text', 'subprovider'):
             if getattr(self, prop) != getattr(other, prop):
                 return False

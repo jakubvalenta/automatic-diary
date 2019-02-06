@@ -2,7 +2,7 @@ import datetime
 import logging
 import re
 import sys
-from typing import IO, Iterator, Optional
+from typing import IO, Iterator, List, Optional
 
 from more_itertools import peekable
 
@@ -31,9 +31,9 @@ def parse_txt(
     sep: str = ': ',
     max_indent: int = 3,
     sep_after_max_indent: str = ' ',
-) -> Item:
+) -> Iterator[Item]:
     current_date: Optional[datetime.date] = None
-    stack = []
+    stack: List[str] = []
     lines = peekable(f)
     for line in lines:
         line_clean = line.rstrip()
@@ -43,6 +43,8 @@ def parse_txt(
         m = regex_heading.match(line_clean)
         if m:
             if stack:
+                if not current_date:
+                    raise ValueError('No date found')
                 text = sep.join(stack)
                 yield Item(dt=current_date, text=text, subprovider=subprovider)
                 stack.clear()
@@ -50,6 +52,9 @@ def parse_txt(
             current_date = datetime.datetime.strptime(
                 date_str, '%Y-%m-%d'
             ).date()
+        # Starts with a non-date line
+        elif not current_date:
+            raise ValueError('No date found')
         # Content line
         else:
             m = regex_content.match(line_clean)

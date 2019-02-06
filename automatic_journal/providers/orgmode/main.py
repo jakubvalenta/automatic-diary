@@ -23,7 +23,7 @@ def load_config(config_json: dict) -> dict:
 regex_heading = re.compile(r'^\* <(?P<date>.+)>$')
 
 
-def parse_orgmode(f: IO, subprovider: str) -> Item:
+def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
     current_date: Optional[datetime.date] = None
     current_paragraph: List[str] = []
     lines = peekable(f)
