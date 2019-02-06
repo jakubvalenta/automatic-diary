@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 def load_config(config_json: dict) -> dict:
     try:
-        path = config_json['txt']['paths']
+        paths = config_json['txt']['paths']
     except (KeyError, TypeError):
         logger.error('Invalid config')
         sys.exit(1)
-    return {'path': path}
+    return {'paths': paths}
 
 
 regex_heading = re.compile(r'^(?P<date>\d{4}-\d{2}-\d{2})')
@@ -84,12 +84,13 @@ def parse_txt(
             yield Item(dt=current_date, text=text, subprovider=subprovider)
 
 
-def read_txt(path: str) -> Iterator[Item]:
-    logger.info('Reading txt file %s', path)
-    with open(path) as f:
-        yield from parse_txt(f, path)
+def read_txts(paths: List[str]) -> Iterator[Item]:
+    for path in paths:
+        logger.info('Reading txt file %s', path)
+        with open(path) as f:
+            yield from parse_txt(f, path)
 
 
 def main(config_json: dict):
     config = load_config(config_json)
-    return read_txt(config['path'])
+    return read_txts(config['paths'])
