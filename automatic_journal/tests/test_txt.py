@@ -46,19 +46,9 @@ class TestTxt(TestCase):
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
-                text='one: two: three: four',
+                text='one: two: three four bar',
                 subprovider=subprovider,
             ),
-            Item(
-                dt=datetime.date(2019, 1, 19),
-                text='one: two: three: bar',
-                subprovider=subprovider,
-            ),
-            # Item(
-            #     dt=datetime.date(2019, 1, 19),
-            #     text='one: two: three four',
-            #     subprovider=subprovider,
-            # ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='one: two: baz',

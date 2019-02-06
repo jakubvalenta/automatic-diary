@@ -25,7 +25,12 @@ regex_content = re.compile(r'^(?P<indent> +)(?P<text>.+)$')
 
 
 def parse_txt(
-    f: IO, subprovider: str, indent_spaces: int = 4, sep: str = ': '
+    f: IO,
+    subprovider: str,
+    indent_spaces: int = 4,
+    sep: str = ': ',
+    max_indent: int = 3,
+    sep_after_max_indent: str = ' ',
 ) -> Item:
     current_date: Optional[datetime.date] = None
     stack = []
@@ -34,13 +39,11 @@ def parse_txt(
         line_clean = line.rstrip()
         if not line_clean:
             continue
-        print(line_clean)
         # Title line
         m = regex_heading.match(line_clean)
         if m:
             if stack:
                 text = sep.join(stack)
-                print('=>', text)
                 yield Item(dt=current_date, text=text, subprovider=subprovider)
                 stack.clear()
             date_str = m.group('date')
@@ -60,9 +63,12 @@ def parse_txt(
                 )
             indent_size = indent_len / indent_spaces
             raw_text = m.group('text')
+            if indent_size > max_indent:
+                indent_size = max_indent
+                stack[-1] = sep_after_max_indent.join([stack[-1], raw_text])
+                continue
             if indent_size <= len(stack):
                 text = sep.join(stack)
-                print('=>', text)
                 yield Item(dt=current_date, text=text, subprovider=subprovider)
                 if indent_size < len(stack):
                     stack.pop()
@@ -70,9 +76,7 @@ def parse_txt(
             stack.append(raw_text)
         if not lines and stack:
             text = sep.join(stack)
-            print('=>', text)
             yield Item(dt=current_date, text=text, subprovider=subprovider)
-        print('STACK', stack)
 
 
 def read_txt(path: str) -> Iterator[Item]:
