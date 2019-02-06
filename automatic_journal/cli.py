@@ -61,7 +61,7 @@ def call_providers(providers: List[str], config_json: str) -> Iterator[Row]:
 
 
 def write_csv(rows: Iterable[Row], path: str):
-    with open(path, 'a') as f:
+    with open(path, 'w') as f:
         writer = csv.writer(f, lineterminator='\n')
         sorted_rows: List[Row] = sorted(rows, key=lambda row: row.item)
         encountered_row_tuples: Set[Tuple[str, str, str, str]] = set()
