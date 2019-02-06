@@ -26,7 +26,7 @@ class Row:
             self.item.dt_str,
             self.provider,
             self.item.subprovider,
-            self.item.text,
+            self.item.clean_text,
         )
 
 
