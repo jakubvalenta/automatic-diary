@@ -41,10 +41,23 @@ class Item:
 
     def __hash__(self) -> int:
         return hash(
-            (
-                getattr(self, 'dt', None),
-                getattr(self, 'text', None),
-                getattr(self, 'subprovider', None),
+            tuple(
+                getattr(self, prop, None)
+                for prop in ('dt', 'text', 'subprovider')
+            )
+        )
+
+    def __eq__(self, other: 'Item') -> int:
+        for prop in ('dt', 'text', 'subprovider'):
+            if getattr(self, prop) != getattr(other, prop):
+                return False
+        return True
+
+    def __repr__(self):
+        return 'Item({props})'.format(
+            props=','.join(
+                '{key}={val}'.format(key=prop, val=getattr(self, prop, None))
+                for prop in ('dt', 'text', 'subprovider')
             )
         )
 

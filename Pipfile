@@ -16,6 +16,7 @@ tzlocal = "*"
 ics = {editable = true,git = "https://lab.saloun.cz/jakub/ics.py"}
 pystache = "*"
 dateparser = "*"
+more-itertools = "*"
 
 [requires]
 python_version = "3.7"
