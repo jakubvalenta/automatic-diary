@@ -24,7 +24,7 @@ lint-shell:  ## Run only shell script linting
 lint-python:  ## Run only Python linting
 	tox -e lint
 
-reformat:
+reformat:  ## Reformat Python code using Black
 	black -l 79 --skip-string-normalization automatic_journal
 
 help:
