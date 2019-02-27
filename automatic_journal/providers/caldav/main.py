@@ -57,7 +57,7 @@ def read_events_data_from_cache(
                 yield Path(cache_file.path).read_text()
 
 
-def write_events_to_cache(events: Iterator[caldav.Event], cache_dir: Path):
+def write_events_to_cache(events: List[caldav.Event], cache_dir: Path):
     logger.info(f'Writing cache {cache_dir}')
     cache_dir.mkdir(parents=True, exist_ok=True)
     for event in events:
@@ -78,8 +78,10 @@ def download_events(config: dict, no_cache: bool) -> List[str]:
     client = caldav.DAVClient(url, username=username, password=password)
     logger.info('Reading principal')
     principal = client.principal()
-    events = itertools.chain(
-        calendar.events() for calendar in principal.calendars()
+    events = list(
+        itertools.chain.from_iterable(
+            calendar.events() for calendar in principal.calendars()
+        )
     )
     write_events_to_cache(events, cache_dir)
     return [event.data for event in events]
