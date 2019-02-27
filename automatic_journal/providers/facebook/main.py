@@ -14,10 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def parse_date_time(s: str) -> datetime.datetime:
-    s = re.sub(r'\s\S{2}\s', ' ', s)  # remove "at", "um"...
+    s = re.sub(r'\s(at|um)\s', ' ', s)
     s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
     s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
     dt = dateparser.parse(s)
+    logger.info('Parsed date string %s as %s', s, dt)
     return dt
 
 
