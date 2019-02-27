@@ -50,8 +50,6 @@ def _download_ratings_page(
     r = requests.get(page_url, headers=HEADERS)
     html = r.text
     logger.info(f'Writing cache {cache_file}')
-    if cache_file.exists():
-        raise Exception(f'Cache file {cache_file} already exists')
     cache_file.parent.mkdir(parents=True, exist_ok=True)
     cache_file.write_text(html)
     return html

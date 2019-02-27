@@ -63,8 +63,6 @@ def write_events_to_cache(events: Iterator[caldav.Event], cache_dir: Path):
     for event in events:
         _, event_id = event.url.rsplit('/', maxsplit=1)
         cache_file = cache_dir / event_id
-        if cache_file.exists():
-            raise Exception(f'Cache file {cache_file} already exists')
         cache_file.write_text(event.data)
 
 
