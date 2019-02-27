@@ -49,8 +49,6 @@ def _parse_address(header: THeader) -> str:
 
 
 def _parse_date(header: THeader) -> datetime.datetime:
-    if not header:
-        raise Exception('Missing Date header')
     header_str = str(header)
     return email.utils.parsedate_to_datetime(header_str)
 
@@ -75,6 +73,9 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
         logger.info('Reading message %s', path)
         with open(path, 'rb') as f:
             email_message = email.message_from_binary_file(f)
+        if not email_message['Date']:
+            logger.warning('Skipping message without date: %s', path)
+            continue
         message = Message(
             subject=_decode_header(email_message['Subject']),
             from_=_parse_address(email_message['From']),
