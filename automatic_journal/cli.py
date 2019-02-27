@@ -53,6 +53,7 @@ def call_providers(
     for provider in providers:
         name = f'automatic_journal.providers.{provider}.main'
         try:
+            logger.info('Running provider %s', name)
             module = importlib.import_module(name)
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
