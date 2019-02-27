@@ -85,6 +85,6 @@ def read_all_calendars(config: dict) -> Iterator[Item]:
                 unique_events.append(event)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return read_all_calendars(config)

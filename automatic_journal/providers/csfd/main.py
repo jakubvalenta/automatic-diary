@@ -39,10 +39,10 @@ class Film:
 
 
 def _download_ratings_page(
-    profile_url: str, cache_dir: Path, page_no: int = 1
+    profile_url: str, cache_dir: Path, no_cache: bool, page_no: int = 1
 ) -> str:
     cache_file = cache_dir / f'{page_no:d}.html'
-    if cache_file.is_file():
+    if not no_cache and cache_file.is_file():
         logger.info(f'Reading cache {cache_file}')
         return cache_file.read_text()
     page_url = f'{profile_url}hodnoceni/strana-{page_no}/'
@@ -57,10 +57,12 @@ def _download_ratings_page(
     return html
 
 
-def download_all_ratings_pages(config: dict) -> Iterator[BeautifulSoup]:
+def download_all_ratings_pages(
+    config: dict, no_cache: bool
+) -> Iterator[BeautifulSoup]:
     profile_url = config['profile_url']
     cache_dir = Path(config['cache_dir'])
-    html = _download_ratings_page(profile_url, cache_dir)
+    html = _download_ratings_page(profile_url, cache_dir, no_cache)
     soup = BeautifulSoup(html, 'html.parser')
     page_links = soup.select('.profile-content .paginator a')
     page_num_links = [node for node in page_links if not node.get('class')]
@@ -69,7 +71,9 @@ def download_all_ratings_pages(config: dict) -> Iterator[BeautifulSoup]:
     logger.info('Found %d pages', last_page_num)
     yield soup
     for page_no in range(2, last_page_num + 1):
-        html = _download_ratings_page(profile_url, cache_dir, page_no)
+        html = _download_ratings_page(
+            profile_url, cache_dir, no_cache, page_no
+        )
         soup = BeautifulSoup(html, 'html.parser')
         yield soup
 
@@ -92,9 +96,9 @@ def parse_ratings_pages(
             yield Item(dt=film.date, text=film.title, subprovider=subprovider)
 
 
-def main(config_json: dict):
+def main(config_json: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return chain(
-        download_all_ratings_pages,
+        partial(download_all_ratings_pages, no_cache=no_cache),
         partial(parse_ratings_pages, subprovider=config['profile_url']),
     )(config)

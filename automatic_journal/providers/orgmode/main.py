@@ -57,6 +57,6 @@ def read_orgmode(path: str) -> Iterator[Item]:
         yield from parse_orgmode(f, path)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return read_orgmode(config['path'])

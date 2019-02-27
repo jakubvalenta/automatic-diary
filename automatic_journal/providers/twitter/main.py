@@ -40,6 +40,6 @@ def parse_all_archives(config: dict) -> Iterator[Item]:
             yield from _parse_tweets_file(tweets_file_path)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return parse_all_archives(config)

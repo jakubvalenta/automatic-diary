@@ -63,7 +63,7 @@ def read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
             yield Item(dt=dt, text=text, subprovider=repo_path)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return chain(
         find_git_repos, partial(read_git_logs, author=config['author'])

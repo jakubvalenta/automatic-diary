@@ -47,7 +47,9 @@ def load_config(
     return providers, config_json
 
 
-def call_providers(providers: List[str], config_json: str) -> Iterator[Row]:
+def call_providers(
+    providers: List[str], config_json: str, no_cache: bool
+) -> Iterator[Row]:
     for provider in providers:
         name = f'automatic_journal.providers.{provider}.main'
         try:
@@ -55,7 +57,7 @@ def call_providers(providers: List[str], config_json: str) -> Iterator[Row]:
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
             continue
-        items = module.main(config_json)  # type: ignore
+        items = module.main(config_json, no_cache)  # type: ignore
         for item in items:
             yield Row(item, provider)
 
@@ -90,15 +92,13 @@ def main():
         '-v', '--verbose', action='store_true', help='Enable debugging output'
     )
     parser.add_argument(
-        '-c', '--clean', action='store_true', help='Clean cache and exit'
+        '-n', '--no-cache', action='store_true', help='Don\'t use cache'
     )
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(
             stream=sys.stdout, level=logging.INFO, format='%(message)s'
         )
-    if args.clean:
-        return  # TODO
     providers, config_json = load_config(args.config_path, args.provider)
-    rows = call_providers(providers, config_json)
+    rows = call_providers(providers, config_json, args.no_cache)
     write_csv(rows, args.output_csv_path)

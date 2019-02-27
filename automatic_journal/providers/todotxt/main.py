@@ -38,6 +38,6 @@ def read_todotxt(path: str) -> Iterator[Item]:
             yield Item(dt=dt, text=text, subprovider=path)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return read_todotxt(config['path'])

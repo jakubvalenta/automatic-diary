@@ -90,6 +90,6 @@ def read_messages(config: dict) -> Iterator[Item]:
     yield from _read_messages(config['sent_pathname'], sent=True)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return read_messages(config)

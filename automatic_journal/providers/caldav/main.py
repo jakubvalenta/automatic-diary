@@ -45,7 +45,11 @@ def load_config(config_json: dict) -> dict:
     }
 
 
-def read_events_data_from_cache(cache_dir: Path) -> Iterator[str]:
+def read_events_data_from_cache(
+    cache_dir: Path, no_cache: bool
+) -> Iterator[str]:
+    if no_cache:
+        return
     if cache_dir.is_dir():
         logger.info(f'Reading cache {cache_dir}')
         for cache_file in os.scandir(cache_dir):
@@ -64,12 +68,12 @@ def write_events_to_cache(events: Iterator[caldav.Event], cache_dir: Path):
         cache_file.write_text(event.data)
 
 
-def download_events(config: dict) -> List[str]:
+def download_events(config: dict, no_cache: bool) -> List[str]:
     url = config['url']
     username = config['username']
     password = config['password']
     cache_dir = Path(config['cache_dir'])
-    events_data = list(read_events_data_from_cache(cache_dir))
+    events_data = list(read_events_data_from_cache(cache_dir, no_cache))
     if events_data:
         return events_data
     logger.info('Connecting to %s', url)
@@ -94,8 +98,9 @@ def parse_events(
             )
 
 
-def main(config_json: dict):
+def main(config_json: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return chain(
-        download_events, partial(parse_events, subprovider=config['url'])
+        partial(download_events, no_cache=no_cache),
+        partial(parse_events, subprovider=config['url']),
     )(config)

@@ -72,6 +72,6 @@ def parse_all_archives(config: dict) -> Iterator[Item]:
                 yield Item(dt=status.dt, text=status.text, subprovider=path)
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return parse_all_archives(config)

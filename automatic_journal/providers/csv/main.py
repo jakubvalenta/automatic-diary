@@ -42,6 +42,6 @@ def read_csv(config: dict) -> Iterator[Item]:
             yield Item(dt=dt, text=text, subprovider=config['path'])
 
 
-def main(config_json: dict):
+def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
     config = load_config(config_json)
     return read_csv(config)
