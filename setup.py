@@ -3,11 +3,11 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 setup(
-    name='automatic-journal',
+    name='automatic-diary',
     version='0.1.0',
-    description='Automatic journal',
+    description='Automatic diary',
     long_description=(Path(__file__).parent / 'README.md').read_text(),
-    url='https://lab.saloun.cz/jakub/automatic-journal',
+    url='https://lab.saloun.cz/jakub/automatic-diary',
     author='Jakub Valenta',
     author_email='jakub@jakubvalenta.cz',
     license='GNU General Public License v3 (GPLv3)',
@@ -21,6 +21,6 @@ setup(
     ],
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['automatic-journal=automatic_journal.cli:main']
+        'console_scripts': ['automatic-diary=automatic_diary.cli:main']
     },
 )

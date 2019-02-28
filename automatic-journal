@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd "$(dirname "$(readlink -f "$0")")" &&  # This is where the Pipfile is.
-pipenv run python3 -m automatic_journal "$@"

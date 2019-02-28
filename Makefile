@@ -1,7 +1,7 @@
 .PHONY: run setup setup-dev test lint lint-shell lint-python reformat help
 
-run:  ## Run automatic journal
-	./automatic_journal
+run:  ## Run automatic diary
+	./automatic-diary
 
 setup:  ## Create Pipenv virtual environment and install dependencies.
 	pipenv --three --site-packages
@@ -25,7 +25,7 @@ lint-python:  ## Run only Python linting
 	tox -e lint
 
 reformat:  ## Reformat Python code using Black
-	black -l 79 --skip-string-normalization automatic_journal
+	black -l 79 --skip-string-normalization automatic_diary
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'

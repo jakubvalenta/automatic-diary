@@ -1,4 +1,4 @@
-# Automatic Journal
+# Automatic Diary
 
 ## Pre-requisites
 
@@ -20,7 +20,7 @@ Not supported because of the libsecret dependency.
 ## Usage
 
 ```
-./automatic_journal <config path> <output csv path>
+./automatic-diary <config path> <output csv path>
 ```
 
 The output CSV must be in a git repository.
@@ -28,10 +28,7 @@ The output CSV must be in a git repository.
 Example:
 
 ```
-mkdir /tmp/my_repo
-cd /tmp/my_repo &&
-git init &&
-./automatic_journal ~/.config/automatic-journal/config.json /tmp/my_repo/journal.csv
+./automatic-diary ~/.config/automatic-diary/config.json diary.csv
 ```
 
 ## Supported providers
