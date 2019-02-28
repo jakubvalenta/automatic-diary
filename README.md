@@ -3,19 +3,16 @@
 ## Pre-requisites
 
 - Python 3.7
+- Linux with libsecret available.
 
 ## Installation
 
-### Arch Linux
+Arch Linux:
 
 ```
 # pacman -S pipenv jq libsecret
 $ make setup
 ```
-
-### Windows and Mac
-
-Not supported because of the libsecret dependency.
 
 ## Usage
 
@@ -34,13 +31,18 @@ Example:
 ## Supported providers
 
 - caldav
+- csfd
+- csv
+- facebook
 - git
+- icalendar
+- maildir
+- orgmode
+- todotxt
+- twitter
+- txt
 
 ## Development
-
-### Dependencies
-
-- schellcheck: for shell script linting
 
 ### Installation
 
@@ -48,8 +50,9 @@ Example:
 make setup-dev
 ```
 
-### Linting
+### Testing and linting
 
 ```
+make test
 make lint
 ```
