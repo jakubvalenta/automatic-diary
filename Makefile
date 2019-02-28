@@ -1,4 +1,4 @@
-.PHONY: run setup setup-dev test lint lint-shell lint-python reformat help
+.PHONY: run setup setup-dev test lint reformat help
 
 run:  ## Run automatic diary
 	./automatic-diary
@@ -13,15 +13,7 @@ setup-dev:  ## Install development dependencies
 test:  ## Run unit tests
 	tox -e py37
 
-lint: | lint-shell lint-python  ## Run all linting
-
-lint-shell:  ## Run only shell script linting
-	git ls-tree -r HEAD --name-only | \
-		grep -E '(.sh$$|^[^\.]+$$)' | \
-		awk '/^#!.*sh/{print FILENAME}  {nextfile}' | \
-		xargs echo
-
-lint-python:  ## Run only Python linting
+lint:  ## Run linting
 	tox -e lint
 
 reformat:  ## Reformat Python code using Black
