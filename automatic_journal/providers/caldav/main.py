@@ -2,50 +2,18 @@ import io
 import itertools
 import logging
 import os
-import subprocess
-import sys
-from functools import partial
 from pathlib import Path
 from typing import Iterable, Iterator, List
 
 import caldav
 
-from automatic_journal.common import Item, chain
+from automatic_journal.common import Item, lookup_secret
 from automatic_journal.providers.icalendar.main import parse_calendar
 
 logger = logging.getLogger(__name__)
 
 
-def lookup_secret(key: str, val: str) -> str:
-    completed_process = subprocess.run(
-        ['secret-tool', 'lookup', key, val],
-        stdout=subprocess.PIPE,
-        check=True,
-        universal_newlines=True,  # Don't use arg 'text' for Python 3.6 compat.
-    )
-    return completed_process.stdout
-
-
-def load_config(config_json: dict) -> dict:
-    try:
-        url = config_json['caldav']['url']
-        username = config_json['caldav']['username']
-        password_key = config_json['caldav']['password_key']
-        password_val = config_json['caldav']['password_val']
-        cache_dir = config_json['caldav']['cache_dir']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    password = lookup_secret(password_key, password_val)
-    return {
-        'url': url,
-        'username': username,
-        'password': password,
-        'cache_dir': cache_dir,
-    }
-
-
-def read_events_data_from_cache(
+def _read_events_data_from_cache(
     cache_dir: Path, no_cache: bool
 ) -> Iterator[str]:
     if no_cache:
@@ -57,7 +25,7 @@ def read_events_data_from_cache(
                 yield Path(cache_file.path).read_text()
 
 
-def write_events_to_cache(events: List[caldav.Event], cache_dir: Path):
+def _write_events_to_cache(events: List[caldav.Event], cache_dir: Path):
     logger.info(f'Writing cache {cache_dir}')
     cache_dir.mkdir(parents=True, exist_ok=True)
     for event in events:
@@ -66,12 +34,10 @@ def write_events_to_cache(events: List[caldav.Event], cache_dir: Path):
         cache_file.write_text(event.data)
 
 
-def download_events(config: dict, no_cache: bool) -> List[str]:
-    url = config['url']
-    username = config['username']
-    password = config['password']
-    cache_dir = Path(config['cache_dir'])
-    events_data = list(read_events_data_from_cache(cache_dir, no_cache))
+def download_events(
+    url: str, username: str, password: str, cache_dir: Path, no_cache: bool
+) -> List[str]:
+    events_data = list(_read_events_data_from_cache(cache_dir, no_cache))
     if events_data:
         return events_data
     logger.info('Connecting to %s', url)
@@ -83,7 +49,7 @@ def download_events(config: dict, no_cache: bool) -> List[str]:
             calendar.events() for calendar in principal.calendars()
         )
     )
-    write_events_to_cache(events, cache_dir)
+    _write_events_to_cache(events, cache_dir)
     return [event.data for event in events]
 
 
@@ -98,9 +64,10 @@ def parse_events(
             )
 
 
-def main(config_json: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return chain(
-        partial(download_events, no_cache=no_cache),
-        partial(parse_events, subprovider=config['url']),
-    )(config)
+def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
+    url = config['url']
+    username = config['username']
+    password = lookup_secret(config['password_key'], config['password_val'])
+    cache_dir = Path(config['cache_dir'])
+    events_data = download_events(url, username, password, cache_dir, no_cache)
+    return parse_events(events_data, subprovider=url)

@@ -1,7 +1,6 @@
 import datetime
 import logging
 import re
-import sys
 from typing import IO, Iterator, List, Optional
 
 from more_itertools import peekable
@@ -9,15 +8,6 @@ from more_itertools import peekable
 from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
-
-
-def load_config(config_json: dict) -> dict:
-    try:
-        paths = config_json['txt']['paths']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {'paths': paths}
 
 
 regex_heading = re.compile(r'^(?P<date>\d{4}-\d{2}-\d{2})')
@@ -84,13 +74,8 @@ def parse_txt(
             yield Item(dt=current_date, text=text, subprovider=subprovider)
 
 
-def read_txts(paths: List[str]) -> Iterator[Item]:
-    for path in paths:
-        logger.info('Reading txt file %s', path)
-        with open(path) as f:
-            yield from parse_txt(f, path)
-
-
-def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return read_txts(config['paths'])
+def main(config: dict, *args, **kwargs) -> Iterator[Item]:
+    path = config['path']
+    logger.info('Reading txt file %s', path)
+    with open(path) as f:
+        yield from parse_txt(f, path)

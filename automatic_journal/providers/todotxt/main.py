@@ -1,7 +1,6 @@
 import datetime
 import logging
 import re
-import sys
 from typing import Iterator
 
 from automatic_journal.common import Item
@@ -9,16 +8,8 @@ from automatic_journal.common import Item
 logger = logging.getLogger(__name__)
 
 
-def load_config(config_json: dict) -> dict:
-    try:
-        path = config_json['todotxt']['path']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {'path': path}
-
-
-def read_todotxt(path: str) -> Iterator[Item]:
+def main(config: dict, *args, **kwargs) -> Iterator[Item]:
+    path = config['path']
     logger.info('Reading todo.txt file %s', path)
     with open(path) as f:
         for line in f:
@@ -36,8 +27,3 @@ def read_todotxt(path: str) -> Iterator[Item]:
             )
             text = m.group('text')
             yield Item(dt=dt, text=text, subprovider=path)
-
-
-def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return read_todotxt(config['path'])

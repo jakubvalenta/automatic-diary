@@ -1,7 +1,6 @@
 import datetime
 import logging
 import quopri
-import sys
 from dataclasses import dataclass
 from typing import Iterable, Iterator, List, Union
 
@@ -11,15 +10,6 @@ import ics.parse
 from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
-
-
-def load_config(config_json: dict) -> dict:
-    try:
-        paths = config_json['icalendar']['paths']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {'paths': paths}
 
 
 @dataclass
@@ -74,17 +64,13 @@ def read_calendar(path: str) -> Iterator[Event]:
         yield from parse_calendar(f)
 
 
-def read_all_calendars(config: dict) -> Iterator[Item]:
+def main(config: dict, *args, **kwargs) -> Iterator[Item]:
+    paths = config['paths']
     unique_events: List[Event] = []
-    for path in config['paths']:
+    for path in paths:
         for event in read_calendar(path):
             if event not in unique_events:
                 yield Item(
                     dt=event.one_date, text=event.name, subprovider=path
                 )
                 unique_events.append(event)
-
-
-def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return read_all_calendars(config)

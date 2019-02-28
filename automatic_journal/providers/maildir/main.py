@@ -86,11 +86,6 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
         yield Item(dt=message.dt, text=message.text, subprovider=pathname)
 
 
-def read_messages(config: dict) -> Iterator[Item]:
+def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     yield from _read_messages(config['received_pathname'], sent=False)
     yield from _read_messages(config['sent_pathname'], sent=True)
-
-
-def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return read_messages(config)

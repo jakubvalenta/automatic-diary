@@ -30,27 +30,22 @@ class Row:
         )
 
 
-def load_config(
+def load_configs(
     path: str, only_providers: Optional[List[str]] = None
-) -> Tuple[List[str], dict]:
+) -> Iterator[Tuple[str, dict]]:
     with open(path) as f:
         config_json = json.load(f)
-    try:
-        providers = [
-            k
-            for k in config_json.keys()
-            if not only_providers or k in only_providers
-        ]
-    except (AttributeError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return providers, config_json
+    for config_json_item in config_json:
+        provider = config_json_item['provider']
+        config = config_json_item['config']
+        if not only_providers or provider in only_providers:
+            yield provider, config
 
 
 def call_providers(
-    providers: List[str], config_json: str, no_cache: bool
+    configs: Iterable[Tuple[str, dict]], no_cache: bool
 ) -> Iterator[Row]:
-    for provider in providers:
+    for provider, config in configs:
         name = f'automatic_journal.providers.{provider}.main'
         try:
             logger.info('Running provider %s', name)
@@ -58,7 +53,7 @@ def call_providers(
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
             continue
-        items = module.main(config_json, no_cache)  # type: ignore
+        items = module.main(config, no_cache)  # type: ignore
         for item in items:
             yield Row(item, provider)
 
@@ -100,6 +95,6 @@ def main():
         logging.basicConfig(
             stream=sys.stdout, level=logging.INFO, format='%(message)s'
         )
-    providers, config_json = load_config(args.config_path, args.provider)
-    rows = call_providers(providers, config_json, args.no_cache)
+    configs = load_configs(args.config_path, args.provider)
+    rows = call_providers(configs, args.no_cache)
     write_csv(rows, args.output_csv_path)

@@ -1,15 +1,13 @@
 import datetime
 import logging
-import sys
 from dataclasses import dataclass
-from functools import partial
 from pathlib import Path
 from typing import Iterable, Iterator
 
 import requests
 from bs4 import BeautifulSoup
 
-from automatic_journal.common import Item, chain
+from automatic_journal.common import Item
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +18,6 @@ HEADERS = {
     'DNT': '1',
     'Referer': 'https://www.csfd.cz/',
 }
-
-
-def load_config(config_json: dict) -> dict:
-    try:
-        profile_url = config_json['csfd']['profile_url']
-        cache_dir = config_json['csfd']['cache_dir']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {'profile_url': profile_url, 'cache_dir': cache_dir}
 
 
 @dataclass
@@ -56,10 +44,8 @@ def _download_ratings_page(
 
 
 def download_all_ratings_pages(
-    config: dict, no_cache: bool
+    profile_url: str, cache_dir: Path, no_cache: bool
 ) -> Iterator[BeautifulSoup]:
-    profile_url = config['profile_url']
-    cache_dir = Path(config['cache_dir'])
     html = _download_ratings_page(profile_url, cache_dir, no_cache)
     soup = BeautifulSoup(html, 'html.parser')
     page_links = soup.select('.profile-content .paginator a')
@@ -94,9 +80,8 @@ def parse_ratings_pages(
             yield Item(dt=film.date, text=film.title, subprovider=subprovider)
 
 
-def main(config_json: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return chain(
-        partial(download_all_ratings_pages, no_cache=no_cache),
-        partial(parse_ratings_pages, subprovider=config['profile_url']),
-    )(config)
+def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
+    profile_url = config['profile_url']
+    cache_dir = Path(config['cache_dir'])
+    pages = download_all_ratings_pages(profile_url, cache_dir, no_cache)
+    return parse_ratings_pages(pages, subprovider=profile_url)

@@ -1,7 +1,6 @@
 import datetime
 import logging
 import re
-import sys
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -22,15 +21,6 @@ def parse_date_time(s: str) -> datetime.datetime:
     return dt
 
 
-def load_config(config_json: dict) -> dict:
-    try:
-        paths = config_json['facebook']['paths']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {'paths': paths}
-
-
 @dataclass
 class Status:
     dt: datetime.datetime
@@ -48,7 +38,7 @@ filter_regex = re.compile(
 )
 
 
-def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
+def parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
     for p in soup.find_all('p'):
         comment_el = p.find(class_='comment')
         if not comment_el:
@@ -63,16 +53,16 @@ def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
         yield Status(dt=dt, text=text)
 
 
-def parse_all_archives(config: dict) -> Iterator[Item]:
-    for path in config['paths']:
-        logger.info('Reading Facebook archive %s', path)
-        with open(path) as f:
-            html = f.read()
-            soup = BeautifulSoup(html, 'html.parser')
-            for status in _parse_timeline_page(soup):
-                yield Item(dt=status.dt, text=status.text, subprovider=path)
+def read_html(path: str) -> BeautifulSoup:
+    with open(path) as f:
+        html = f.read()
+        soup = BeautifulSoup(html, 'html.parser')
+    return soup
 
 
-def main(config_json: dict, *args, **kwargs) -> Iterator[Item]:
-    config = load_config(config_json)
-    return parse_all_archives(config)
+def main(config: dict, *args, **kwargs) -> Iterator[Item]:
+    path = config['path']
+    logger.info('Reading Facebook archive %s', path)
+    soup = read_html(path)
+    for status in parse_timeline_page(soup):
+        yield Item(dt=status.dt, text=status.text, subprovider=path)
