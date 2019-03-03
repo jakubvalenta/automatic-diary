@@ -3,7 +3,7 @@ import logging
 import quopri
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, List, Union
+from typing import Iterable, Iterator, List, Optional, Union
 
 import ics
 import ics.parse
@@ -14,21 +14,20 @@ logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 
-def quopri_decode(s: Union[None, str, bytes]) -> str:
+def quopri_decode(s: Optional[str]) -> str:
     if not s:
         return ''
-    if isinstance(s, bytes):
-        try:
-            return quopri.decodestring(s).decode()
-        except ValueError:
-            return s.decode()
+    try:
+        return quopri.decodestring(s.encode()).decode()
+    except ValueError:
+        return s
     return s
 
 
 @dataclass
 class Event:
-    _name: Union[None, str, bytes]
-    _location: Union[None, str, bytes]
+    _name: Optional[str]
+    _location: Optional[str]
     begin: datetime.datetime
     all_day: bool
 
