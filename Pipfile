@@ -18,6 +18,7 @@ pystache = "*"
 dateparser = "*"
 more-itertools = "*"
 beautifulsoup4 = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"

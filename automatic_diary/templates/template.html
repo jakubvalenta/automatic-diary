@@ -1,0 +1,37 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title>Automatic Diary Visualization</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <style type="text/css" media="screen">
+         body {
+             margin: 0;
+         }
+         .week {
+             display: flex;
+             align-items: stretch;
+         }
+         .day {
+             border: 1px solid gray;
+             width: 14.28%;
+             min-height: 200px;
+         }
+         .csfd {
+             color: red;
+         }
+        </style>
+    </head>
+    <body>
+        {% for week in weeks %}
+        <div class="week">
+            {% for day in week %}
+            <div class="day {{ day.date.strftime('%a').lower() }}">
+                <h2>{{ day.date.day }} <small>{{ day.date.isoformat() }}</small></h2>
+                {% for item in day.items %}
+                <p class="{{ item.provider }}">{{ item.text }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </body>
+</html>
