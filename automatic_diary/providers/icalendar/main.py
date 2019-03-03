@@ -2,7 +2,7 @@ import datetime
 import logging
 import quopri
 from dataclasses import dataclass
-from typing import Iterable, Iterator, List, Union
+from typing import Iterable, Iterator, List, Optional, Union
 
 import ics
 import ics.parse
@@ -12,9 +12,19 @@ from automatic_diary.common import Item
 logger = logging.getLogger(__name__)
 
 
+def quopri_decode(s: Optional[str]) -> Optional[str]:
+    if not s:
+        return s
+    try:
+        return quopri.decodestring(s).decode()
+    except ValueError:
+        return s
+
+
 @dataclass
 class Event:
     _name: str
+    _location: str
     begin: datetime.datetime
     all_day: bool
 
@@ -22,15 +32,19 @@ class Event:
     def from_ics_event(cls, event: ics.Event):
         # TODO: multiple days
         return cls(
-            _name=event.name, begin=event.begin.datetime, all_day=event.all_day
+            _name=event.name,
+            _location=event.location,
+            begin=event.begin.datetime,
+            all_day=event.all_day,
         )
 
     @property
     def name(self):
-        try:
-            return quopri.decodestring(self._name).decode()
-        except ValueError:
-            return self._name
+        name = quopri_decode(self._name)
+        location = quopri_decode(self._location)
+        if location:
+            return f'{name} ({location})'
+        return name
 
     @property
     def one_date(self) -> Union[datetime.datetime, datetime.date]:
