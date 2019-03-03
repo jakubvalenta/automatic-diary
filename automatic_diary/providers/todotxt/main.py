@@ -1,11 +1,13 @@
 import datetime
 import logging
 import re
+from pathlib import Path
 from typing import Iterator
 
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
@@ -26,4 +28,4 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
                 int(m.group('y')), int(m.group('m')), int(m.group('d'))
             )
             text = m.group('text')
-            yield Item(dt=dt, text=text, subprovider=path)
+            yield Item(dt=dt, text=text, provider=provider, subprovider=path)

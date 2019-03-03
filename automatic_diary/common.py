@@ -2,7 +2,7 @@ import datetime
 import re
 import subprocess
 from functools import total_ordering
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import dateutil.tz
 
@@ -28,12 +28,14 @@ def lookup_secret(key: str, val: str) -> str:
 class Item:
     dt: datetime.datetime
     text: str
+    provider: str
     subprovider: str
 
     def __init__(
         self,
         dt: Union[datetime.datetime, datetime.date],
         text: str,
+        provider: str,
         subprovider: str,
     ):
         self._dt = dt
@@ -46,6 +48,7 @@ class Item:
             )
         self.dt = dt
         self.text = text
+        self.provider = provider
         self.subprovider = subprovider
 
     def __hash__(self) -> int:
@@ -71,12 +74,15 @@ class Item:
         )
 
     @property
-    def clean_text(self):
+    def clean_text(self) -> str:
         return re.sub(r'\s+', ' ', self.text).strip()
 
     @property
-    def dt_str(self):
+    def dt_str(self) -> str:
         return self._dt.isoformat()
 
     def __lt__(self, other):
         return self.dt < other.dt
+
+    def astuple(self) -> Tuple[str, str, str, str]:
+        return (self.dt_str, self.provider, self.subprovider, self.clean_text)

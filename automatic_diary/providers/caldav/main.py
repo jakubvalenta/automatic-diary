@@ -11,6 +11,7 @@ from automatic_diary.common import Item, lookup_secret
 from automatic_diary.providers.icalendar.main import parse_calendar
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 
 def _read_events_data_from_cache(
@@ -60,7 +61,10 @@ def parse_events(
         lines = io.StringIO(event_data)
         for event in parse_calendar(lines):
             yield Item(
-                dt=event.one_date, text=event.name, subprovider=subprovider
+                dt=event.one_date,
+                text=event.name,
+                provider=provider,
+                subprovider=subprovider,
             )
 
 

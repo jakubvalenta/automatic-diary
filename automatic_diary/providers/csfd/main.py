@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',  # noqa: E501
@@ -77,7 +78,12 @@ def parse_ratings_pages(
 ) -> Iterator[Item]:
     for soup in soups:
         for film in _parse_ratings_page(soup):
-            yield Item(dt=film.date, text=film.title, subprovider=subprovider)
+            yield Item(
+                dt=film.date,
+                text=film.title,
+                provider=provider,
+                subprovider=subprovider,
+            )
 
 
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:

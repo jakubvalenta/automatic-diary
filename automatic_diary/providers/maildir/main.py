@@ -6,11 +6,13 @@ import glob
 import logging
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterator, Union
 
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 THeader = Union[str, email.header.Header, None]
 
@@ -83,7 +85,12 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
             dt=_parse_date(email_message['Date']),
             sent=sent,
         )
-        yield Item(dt=message.dt, text=message.text, subprovider=pathname)
+        yield Item(
+            dt=message.dt,
+            text=message.text,
+            provider=provider,
+            subprovider=pathname,
+        )
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:

@@ -5,7 +5,6 @@ import json
 import logging
 import os.path
 import sys
-from dataclasses import dataclass
 from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
 from automatic_diary import __title__
@@ -14,20 +13,6 @@ from automatic_diary.common import Item
 logger = logging.getLogger(__name__)
 
 dir_ = os.path.dirname(__file__)
-
-
-@dataclass
-class Row:
-    item: Item
-    provider: str
-
-    def astuple(self) -> Tuple[str, str, str, str]:
-        return (
-            self.item.dt_str,
-            self.provider,
-            self.item.subprovider,
-            self.item.clean_text,
-        )
 
 
 def load_configs(
@@ -44,7 +29,7 @@ def load_configs(
 
 def call_providers(
     configs: Iterable[Tuple[str, dict]], no_cache: bool
-) -> Iterator[Row]:
+) -> Iterator[Item]:
     for provider, config in configs:
         name = f'automatic_diary.providers.{provider}.main'
         try:
@@ -53,21 +38,18 @@ def call_providers(
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
             continue
-        items = module.main(config, no_cache)  # type: ignore
-        for item in items:
-            yield Row(item, provider)
+        yield from module.main(config, no_cache)  # type: ignore
 
 
-def write_csv(rows: Iterable[Row], path: str):
+def write_csv(items: Iterable[Item], path: str):
     with open(path, 'w') as f:
         writer = csv.writer(f, lineterminator='\n')
-        sorted_rows: List[Row] = sorted(rows, key=lambda row: row.item)
-        encountered_row_tuples: Set[Tuple[str, str, str, str]] = set()
-        for row in sorted_rows:
-            row_tuple = row.astuple()
-            if row_tuple not in encountered_row_tuples:
-                writer.writerow(row_tuple)
-                encountered_row_tuples.add(row_tuple)
+        encountered_item_tuples: Set[Tuple[str, str, str, str]] = set()
+        for item in sorted(items):
+            item_tuple = item.astuple()
+            if item_tuple not in encountered_item_tuples:
+                writer.writerow(item_tuple)
+                encountered_item_tuples.add(item_tuple)
 
 
 def main():

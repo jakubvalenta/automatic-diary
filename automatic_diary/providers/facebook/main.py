@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterator
 
 import dateparser
@@ -10,6 +11,7 @@ from bs4 import BeautifulSoup
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 
 def parse_date_time(s: str) -> datetime.datetime:
@@ -65,4 +67,6 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     logger.info('Reading Facebook archive %s', path)
     soup = read_html(path)
     for status in parse_timeline_page(soup):
-        yield Item(dt=status.dt, text=status.text, subprovider=path)
+        yield Item(
+            dt=status.dt, text=status.text, provider=provider, subprovider=path
+        )

@@ -2,11 +2,13 @@ import datetime
 import logging
 import os
 import subprocess
+from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 
 from automatic_diary.common import Item, run_shell_cmd
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 TDateTimeTextSubprovider = Tuple[datetime.datetime, str, str]
 
@@ -39,7 +41,9 @@ def read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
         for log_line in log.splitlines():
             dt_str, text = log_line.split(',', maxsplit=1)
             dt = datetime.datetime.fromisoformat(dt_str)
-            yield Item(dt=dt, text=text, subprovider=repo_path)
+            yield Item(
+                dt=dt, text=text, provider=provider, subprovider=repo_path
+            )
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:

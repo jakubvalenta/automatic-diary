@@ -1,6 +1,7 @@
 import csv
 import datetime
 import logging
+from pathlib import Path
 from typing import Iterator
 
 import pystache
@@ -8,6 +9,7 @@ import pystache
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
+provider = Path(__file__).parent.name
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
@@ -21,4 +23,6 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
             dt_str = renderer.render(date_source_tmpl, row)
             text = renderer.render(text_source_tmpl, row)
             dt = datetime.datetime.strptime(dt_str, config['date_format'])
-            yield Item(dt=dt, text=text, subprovider=config['path'])
+            yield Item(
+                dt=dt, text=text, provider=provider, subprovider=config['path']
+            )

@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+from pathlib import Path
 from typing import IO, Iterator, List, Optional
 
 from more_itertools import peekable
@@ -8,7 +9,7 @@ from more_itertools import peekable
 from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
-
+provider = Path(__file__).parent.name
 
 regex_heading = re.compile(r'^(?P<date>\d{4}-\d{2}-\d{2})')
 regex_content = re.compile(r'^(?P<indent> +)(?P<text>.+)$')
@@ -36,7 +37,12 @@ def parse_txt(
                 if not current_date:
                     raise ValueError('No date found')
                 text = sep.join(stack)
-                yield Item(dt=current_date, text=text, subprovider=subprovider)
+                yield Item(
+                    dt=current_date,
+                    text=text,
+                    provider=provider,
+                    subprovider=subprovider,
+                )
                 stack.clear()
             date_str = m.group('date')
             current_date = datetime.datetime.strptime(
@@ -64,14 +70,24 @@ def parse_txt(
                 continue
             if indent_size <= len(stack):
                 text = sep.join(stack)
-                yield Item(dt=current_date, text=text, subprovider=subprovider)
+                yield Item(
+                    dt=current_date,
+                    text=text,
+                    provider=provider,
+                    subprovider=subprovider,
+                )
                 if indent_size < len(stack):
                     stack.pop()
                 stack.pop()
             stack.append(raw_text)
         if not lines and stack:
             text = sep.join(stack)
-            yield Item(dt=current_date, text=text, subprovider=subprovider)
+            yield Item(
+                dt=current_date,
+                text=text,
+                provider=provider,
+                subprovider=subprovider,
+            )
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
