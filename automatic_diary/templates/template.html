@@ -6,32 +6,62 @@
          body {
              margin: 0;
          }
-         .week {
-             display: flex;
-             align-items: stretch;
-         }
-         .day {
-             border: 1px solid gray;
-             width: 14.28%;
-             min-height: 200px;
-         }
          .csfd {
              color: red;
+         }
+         h2 {
+             text-align: right;
+         }
+         table {
+             width: 100%;
+             border-collapse: collapse;
+             table-layout: fixed;
+         }
+         table, td, th {
+             border: 1px solid gray;
+         }
+         th {
+             background: lightgray;
+         }
+         td, th {
+             width: 14.28%;
+         }
+         tr {
+             min-height: 200px;
+         }
+         td.even {
+             background: #eee;
          }
         </style>
     </head>
     <body>
-        {% for week in weeks %}
-        <div class="week">
-            {% for day in week %}
-            <div class="day {{ day.date.strftime('%a').lower() }}">
-                <h2>{{ day.date.day }} <small>{{ day.date.isoformat() }}</small></h2>
-                {% for item in day.items %}
-                <p class="{{ item.provider }}">{{ item.text }}</p>
+        <table>
+            <thead>
+                <tr>
+                    {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+                    <th>{{ weekday }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks %}
+                <tr>
+                    {% for day in week %}
+                    <td{% if day.date.month % 2 %} class="even"{% endif %}>
+                        <h2 title="{{ day.date.isoformat() }}">
+                            {{ day.date.day }}
+                            {% if day.date.day == 1 %}
+                            {{ day.date.strftime('%b')}}
+                            {% endif %}
+                        </h2>
+                        {% for item in day.items %}
+                        <p class="{{ item.provider }}">{{ item.text }}</p>
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
-        {% endfor %}
+            </tbody>
+        </table>
     </body>
 </html>
