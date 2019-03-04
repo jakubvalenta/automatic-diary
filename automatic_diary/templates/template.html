@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for week in weeks %}
+                {% for week in year %}
                 <tr>
                     {% for day in week %}
                     <td class="{% if day.today %}today{% endif %} {% if day.even %}even{% endif %}">
@@ -40,8 +40,11 @@
                 </tr>
             </tfoot>
         </table>
-        <svg viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="" fill="none" stroke="black" />
+        <svg viewBox="0 0 100 {{ year|length }}" xmlns="http://www.w3.org/2000/svg">
+            <polyline
+                points="{% for week in year %}{{ week.stats['csfd'].val }},{{ loop.index }} {% endfor %}"
+                fill="none"
+                stroke="black" />
         </svg>
         <script src="./diary.js"></script>
     </body>

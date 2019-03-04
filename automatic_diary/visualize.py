@@ -2,10 +2,12 @@ import argparse
 import csv
 import datetime
 import logging
+import statistics
 import sys
-from dataclasses import dataclass, field
+from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, List, TypeVar
+from typing import Dict, Iterable, Iterator, List, Optional
 
 from jinja2 import Environment, PackageLoader
 
@@ -64,17 +66,49 @@ def read_days(csv_path: str) -> Iterator[Day]:
             yield last_day
 
 
-T = TypeVar('T')
+class Stat:
+    count: int = 0
+    val: int = 0
 
 
-def group(items: Iterable[T], size: int) -> Iterator[List[T]]:
-    current_group: List[T] = []
-    for i, item in enumerate(items):
-        if i % size == 0:
-            yield current_group
-            current_group.clear()
-        current_group.append(item)
-    yield current_group
+class Week(list):
+    stats: Dict[str, Stat]
+
+    def __init__(self):
+        self.stats = defaultdict(Stat)
+
+    def append(self, day: Day):
+        super().append(day)
+        for item in day.items:
+            self.stats[item.provider].count += 1
+
+
+class Year(list):
+    def __init__(self, days: Iterable[Day]):
+        self._add_days(days)
+        self._calc_stats()
+
+    def _add_days(self, days: Iterable[Day]):
+        week = Week()
+        for i, day in enumerate(days):
+            if i % 7 == 0:
+                self.append(week)
+                week = Week()
+            week.append(day)
+        self.append(week)
+
+    def _calc_stats(self):
+        for provider in ('csfd',):
+            counts = [
+                week.stats[provider].count
+                for week in self
+                if week.stats[provider].count
+            ]
+            mean = statistics.mean(counts)
+            for week in self:
+                week.stats[provider].val = round(
+                    min(week.stats[provider].count / mean, 1) * 100
+                )
 
 
 env = Environment(loader=PackageLoader('automatic_diary', 'templates'))
@@ -83,7 +117,8 @@ template = env.get_template('template.html')
 
 def visualize(csv_path, output_html_path):
     days = read_days(csv_path)
-    stream = template.stream(weeks=group(days, 7))
+    year = Year(days)
+    stream = template.stream(year=year)
     with Path(output_html_path).open('w') as f:
         f.writelines(stream)
 
