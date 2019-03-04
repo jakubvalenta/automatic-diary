@@ -38,7 +38,7 @@ h2 {
   background: #fcfcfc;
 }
 .th {
-  font-weight: normal;
+  text-align: center;
 }
 .content {
   display: flex;
@@ -147,7 +147,7 @@ color: #000000;
   stroke: #008080;
 }
 .today {
-  outline: 1px dashed #000;
+  border: 1px dashed #000;
 }
 svg {
   position: absolute;
