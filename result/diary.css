@@ -112,6 +112,9 @@ color: #000000;
   color: #666;
   font-size: 9pt;
 }
+.line-git {
+  stroke: #666;
+}
 .facebook,
 .twitter {
   margin-top: 0.5em;
