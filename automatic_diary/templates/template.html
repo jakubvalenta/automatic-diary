@@ -32,6 +32,13 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            <tfoot>
+                <tr>
+                    {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+                    <th>{{ weekday }}</th>
+                    {% endfor %}
+                </tr>
+            </tfoot>
         </table>
     </body>
 </html>

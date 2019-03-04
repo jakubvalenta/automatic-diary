@@ -20,8 +20,8 @@ class Day:
     items: List[Item] = field(default_factory=list)
 
 
-def empty_days(date: datetime.date, days: int) -> Iterator[Day]:
-    for i in range(1, days + 1):
+def empty_days(date: datetime.date, start: int, stop: int) -> Iterator[Day]:
+    for i in range(start, stop):
         empty_date = date + datetime.timedelta(days=i)
         logger.info('Empty day %s', empty_date)
         yield Day(date=empty_date)
@@ -37,14 +37,16 @@ def read_days(csv_path: str) -> Iterator[Day]:
             item = Item(
                 dt=dt, text=text, provider=provider, subprovider=subprovider
             )
-            date = dt.date()
+            date = item.date
             if not last_day:
                 last_day = Day(date=date)
-                yield from empty_days(last_day.date, -dt.weekday())
+                yield from empty_days(
+                    last_day.date, start=-dt.weekday(), stop=0
+                )
             elif date != last_day.date:
                 yield last_day
                 yield from empty_days(
-                    last_day.date, (date - last_day.date).days - 1
+                    last_day.date, start=1, stop=(date - last_day.date).days
                 )
                 logger.info('New day %s', date)
                 last_day = Day(date=date)

@@ -26,6 +26,7 @@ def lookup_secret(key: str, val: str) -> str:
 
 @total_ordering
 class Item:
+    _dt: Union[datetime.datetime, datetime.date]
     dt: datetime.datetime
     text: str
     provider: str
@@ -72,6 +73,10 @@ class Item:
                 for prop in ('dt', 'text', 'subprovider')
             )
         )
+
+    @property
+    def date(self) -> datetime.date:
+        return self.dt.astimezone().date()
 
     @property
     def clean_text(self) -> str:
