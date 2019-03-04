@@ -2,6 +2,7 @@ body {
   margin: 1em;
   font-family: B612;
   color: #444;
+  position: relative;
 }
 h2 {
   text-align: right;
@@ -128,4 +129,9 @@ color: #000000;
 }
 .today {
   outline: 1px dashed #000;
+}
+svg {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
