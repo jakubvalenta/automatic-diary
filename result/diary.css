@@ -1,0 +1,124 @@
+body {
+  margin: 1em;
+  font-family: B612;
+  color: #444;
+}
+h2 {
+  text-align: right;
+  font-weight: normal;
+  font-size: 12pt;
+  margin: 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+td, th {
+  width: 14.28%;
+  padding: 0.25em;
+}
+td {
+  border: 1px solid #ddd;
+  overflow: hidden;
+  height: 100%;
+}
+td.even {
+  background: #fcfcfc;
+}
+th {
+  font-weight: normal;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 200px;
+}
+.text {
+  flex-grow: 1;
+}
+.text p {
+  font-size: 10pt;
+  margin: 0.25em 0;
+}
+.date {
+  text-align: center;
+  font-size: 10pt;
+  color: #bbb;
+}
+
+/*
+color: #e6194b;
+color: #3cb44b;
+color: #ffe119;
+color: #4363d8;
+color: #f58231;
+color: #911eb4;
+color: #46f0f0;
+color: #f032e6;
+color: #bcf60c;
+color: #fabebe;
+color: #008080;
+color: #e6beff;
+color: #9a6324;
+color: #fffac8;
+color: #800000;
+color: #aaffc3;
+color: #808000;
+color: #ffd8b1;
+color: #000075;
+color: #808080;
+color: #ffffff;
+color: #000000;
+*/
+.csfd {
+  color: #e6194b;
+}
+.caldav,
+.icalendar {
+  background: #4363d8dd;
+  color: #fff;
+}
+.todotxt {
+  padding-bottom: 0.2em;
+}
+.todotxt span {
+  border-bottom: 0.2em solid #ffe119;
+}
+.git {
+  font-family: monospace;
+  color: #666;
+  font-size: 9pt;
+}
+.facebook,
+.twitter {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 0.1em;
+  padding-right: 0.1em;
+  border-left: 0.5em solid #f032e633;
+  border-right: 0.5em solid #f032e633;
+  font-style: italic;
+}
+.maildir {
+  padding-left: 1.5em;
+}
+.maildir::before {
+  display: block;
+  float: left;
+  content: '\1F4E7';
+  width: 1.5em;
+  margin-left: -1.5em;
+}
+.csv {
+  padding-left: 1.5em;
+  color: #008080;
+}
+.csv::before {
+  display: block;
+  float: left;
+  content: '\26BD';
+  width: 1.5em;
+  margin-left: -1.5em;
+}

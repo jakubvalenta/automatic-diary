@@ -2,37 +2,7 @@
     <head>
         <title>Automatic Diary Visualization</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <style type="text/css" media="screen">
-         body {
-             margin: 0;
-         }
-         .csfd {
-             color: red;
-         }
-         h2 {
-             text-align: right;
-         }
-         table {
-             width: 100%;
-             border-collapse: collapse;
-             table-layout: fixed;
-         }
-         table, td, th {
-             border: 1px solid gray;
-         }
-         th {
-             background: lightgray;
-         }
-         td, th {
-             width: 14.28%;
-         }
-         tr {
-             min-height: 200px;
-         }
-         td.even {
-             background: #eee;
-         }
-        </style>
+        <link rel="stylesheet" href="./diary.css" />
     </head>
     <body>
         <table>
@@ -48,15 +18,15 @@
                 <tr>
                     {% for day in week %}
                     <td{% if day.date.month % 2 %} class="even"{% endif %}>
-                        <h2 title="{{ day.date.isoformat() }}">
-                            {{ day.date.day }}
-                            {% if day.date.day == 1 %}
-                            {{ day.date.strftime('%b')}}
-                            {% endif %}
-                        </h2>
-                        {% for item in day.items %}
-                        <p class="{{ item.provider }}">{{ item.text }}</p>
-                        {% endfor %}
+                        <div class="content">
+                            <div class="text">
+                                <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
+                                {% for item in day.items %}
+                                <p class="{{ item.provider }}"><span>{{ item.text }}</span></p>
+                                {% endfor %}
+                            </div>
+                            <div class="date">{{ day.date.strftime('%b %Y') }}</div>
+                        </div>
                     </td>
                     {% endfor %}
                 </tr>
