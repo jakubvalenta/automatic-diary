@@ -126,3 +126,6 @@ color: #000000;
   width: 1.5em;
   margin-left: -1.5em;
 }
+.today {
+  outline: 1px dashed #000;
+}

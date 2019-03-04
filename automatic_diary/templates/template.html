@@ -17,7 +17,7 @@
                 {% for week in weeks %}
                 <tr>
                     {% for day in week %}
-                    <td{% if day.date.month % 2 %} class="even"{% endif %}>
+                    <td class="{% if day.today %}today{% endif %} {% if day.even %}even{% endif %}">
                         <div class="content">
                             <div class="text">
                                 <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>

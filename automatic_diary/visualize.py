@@ -13,18 +13,27 @@ from automatic_diary.common import Item
 
 logger = logging.getLogger(__name__)
 
+today = datetime.date.today()
 
-@dataclass
+
 class Day:
     date: datetime.date
-    items: List[Item] = field(default_factory=list)
+    items: List[Item]
+    today: bool
+    even: bool
+
+    def __init__(self, date: datetime.date):
+        self.date = date
+        self.items = []
+        self.today = self.date == today
+        self.even = bool(self.date.month % 2)
 
 
 def empty_days(date: datetime.date, start: int, stop: int) -> Iterator[Day]:
     for i in range(start, stop):
         empty_date = date + datetime.timedelta(days=i)
         logger.info('Empty day %s', empty_date)
-        yield Day(date=empty_date)
+        yield Day(empty_date)
 
 
 def read_days(csv_path: str) -> Iterator[Day]:
@@ -39,7 +48,7 @@ def read_days(csv_path: str) -> Iterator[Day]:
             )
             date = item.date
             if not last_day:
-                last_day = Day(date=date)
+                last_day = Day(date)
                 yield from empty_days(
                     last_day.date, start=-dt.weekday(), stop=0
                 )
@@ -49,7 +58,7 @@ def read_days(csv_path: str) -> Iterator[Day]:
                     last_day.date, start=1, stop=(date - last_day.date).days
                 )
                 logger.info('New day %s', date)
-                last_day = Day(date=date)
+                last_day = Day(date)
             last_day.items.append(item)
         if last_day:
             yield last_day
