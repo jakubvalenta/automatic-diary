@@ -14,7 +14,8 @@ table {
   border-collapse: collapse;
   table-layout: fixed;
 }
-td, th {
+td,
+th {
   width: 14.28%;
   padding: 0.25em;
 }
@@ -22,6 +23,9 @@ td {
   border: 1px solid #ddd;
   overflow: hidden;
   height: 100%;
+}
+td:nth-child(5) {
+  border-right-color: #444;
 }
 td.even {
   background: #fcfcfc;
