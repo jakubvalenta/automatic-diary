@@ -83,8 +83,15 @@ color: #808080;
 color: #ffffff;
 color: #000000;
 */
+.line {
+  stroke-width: 0.3;
+  opacity: 0.2;
+}
 .csfd {
   color: #e6194b;
+}
+.line-csfd {
+  stroke: #e6194b;
 }
 .caldav,
 .icalendar {
@@ -96,6 +103,9 @@ color: #000000;
 }
 .todotxt span {
   border-bottom: 0.2em solid #ffe119;
+}
+.line-todotxt {
+  stroke: #ffe119;
 }
 .git {
   font-family: monospace;
@@ -132,6 +142,9 @@ color: #000000;
   content: '\26BD';
   width: 1.5em;
   margin-left: -1.5em;
+}
+.line-csv {
+  stroke: #008080;
 }
 .today {
   outline: 1px dashed #000;

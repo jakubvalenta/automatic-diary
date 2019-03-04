@@ -28,11 +28,13 @@
                 {% endfor %}
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
                      preserveAspectRatio="none">
-                    <line x1="{{ year[loop.index - 1].stats['csfd'].val }}"
+                    {% for provider, stat in week.stats.items() %}
+                    <line x1="{{ stat.val }}"
                           y1="0"
-                          x2="{{ week.stats['csfd'].val }}"
+                          x2="{{ stat.val }}"
                           y2="100"
-                          stroke="black" />
+                          class="line line-{{ provider }}" />
+                    {% endfor %}
                 </svg>
             </div>
             {% endfor %}

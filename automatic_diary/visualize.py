@@ -99,17 +99,19 @@ class Year(list):
                 week = Week()
 
     def _calc_stats(self):
-        for provider in ('csfd',):
-            counts = [
-                week.stats[provider].count
-                for week in self
-                if week.stats[provider].count
-            ]
-            mean = statistics.mean(counts)
-            for week in self:
-                week.stats[provider].val = round(
-                    min(week.stats[provider].count / mean, 1) * 100
-                )
+        provider_counts = defaultdict(list)
+        for week in self:
+            for provider, stat in week.stats.items():
+                if stat.count:
+                    provider_counts[provider].append(stat.count)
+        provider_means = {
+            provider: statistics.mean(counts)
+            for provider, counts in provider_counts.items()
+        }
+        for week in self:
+            for provider, stat in week.stats.items():
+                mean = provider_means[provider]
+                stat.val = round(min(stat.count / mean, 1) * 100)
 
 
 env = Environment(loader=PackageLoader('automatic_diary', 'templates'))
