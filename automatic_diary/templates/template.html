@@ -5,47 +5,43 @@
         <link rel="stylesheet" href="./diary.css" />
     </head>
     <body>
-        <table>
-            <thead>
-                <tr>
-                    {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
-                    <th>{{ weekday }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for week in year %}
-                <tr>
-                    {% for day in week %}
-                    <td class="{% if day.today %}today{% endif %} {% if day.even %}even{% endif %}">
-                        <div class="content">
-                            <div class="text">
-                                <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
-                                {% for item in day.items %}
-                                <p class="{{ item.provider }}"><span>{{ item.text }}</span></p>
-                                {% endfor %}
-                            </div>
-                            <div class="date">{{ day.date.strftime('%b %Y') }}</div>
-                        </div>
-                    </td>
-                    {% endfor %}
-                </tr>
+        <div class="table">
+            <div class="tr">
+                {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+                <div class="th">{{ weekday }}</div>
                 {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
-                    <th>{{ weekday }}</th>
-                    {% endfor %}
-                </tr>
-            </tfoot>
-        </table>
-        <svg viewBox="0 0 100 {{ year|length }}" xmlns="http://www.w3.org/2000/svg">
-            <polyline
-                points="{% for week in year %}{{ week.stats['csfd'].val }},{{ loop.index }} {% endfor %}"
-                fill="none"
-                stroke="black" />
-        </svg>
+            </div>
+            {% for week in year %}
+            <div class="tr">
+                {% for day in week %}
+                <div class="td{% if day.today %} today{% endif %}{% if day.even %} even{% endif %}">
+                    <div class="content">
+                        <div class="text">
+                            <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
+                            {% for item in day.items %}
+                            <p class="{{ item.provider }}"><span>{{ item.text }}</span></p>
+                            {% endfor %}
+                        </div>
+                        <div class="date">{{ day.date.strftime('%b %Y') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
+                     preserveAspectRatio="none">
+                    <line x1="{{ year[loop.index - 1].stats['csfd'].val }}"
+                          y1="0"
+                          x2="{{ week.stats['csfd'].val }}"
+                          y2="100"
+                          stroke="black" />
+                </svg>
+            </div>
+            {% endfor %}
+            <div class="tr">
+                {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+                <div class="th">{{ weekday }}</div>
+                {% endfor %}
+            </div>
+        </div>
         <script src="./diary.js"></script>
     </body>
 </html>

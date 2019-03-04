@@ -1,3 +1,5 @@
+return;
+
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
@@ -14,9 +16,9 @@ var trs = Array.from(document.querySelectorAll('tbody tr'));
 console.log(trs);
 var svg = document.getElementsByTagName('svg')[0];
 var doc = document.documentElement;
-svg.setAttribute('viewBox', [0, 0, 1, doc.clientHeight].join(' '));
+svg.setAttribute('viewBox', [0, 0, doc.clientWidth, doc.clientHeight].join(' '));
 var line = document.getElementsByTagName('polyline')[0];
 var oldPoints = parsePoints(line.getAttribute('points'));
 console.log(oldPoints);
-var newPoints = oldPoints.map(([x, y], i) => [x, trs[i].offsetTop]);
+var newPoints = oldPoints.map(([x, y], i) => [Math.round(x / 100 * doc.clientWidth), trs[i].offsetTop]);
 line.setAttribute('points', formatPoints(newPoints));

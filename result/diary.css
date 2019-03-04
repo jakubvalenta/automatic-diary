@@ -10,28 +10,34 @@ h2 {
   font-size: 12pt;
   margin: 0;
 }
-table {
+.table {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
 }
-td,
-th {
+.tr {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+.td,
+.th {
   width: 14.28%;
   padding: 0.25em;
+  box-sizing: border-box;
 }
-td {
+.td {
   border: 1px solid #ddd;
   overflow: hidden;
   height: 100%;
 }
-td:nth-child(5) {
+.td:nth-child(5) {
   border-right-color: #444;
 }
-td.even {
+.td.even {
   background: #fcfcfc;
 }
-th {
+.th {
   font-weight: normal;
 }
 .content {
