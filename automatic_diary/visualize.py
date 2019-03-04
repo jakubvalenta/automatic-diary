@@ -89,13 +89,14 @@ class Year(list):
         self._calc_stats()
 
     def _add_days(self, days: Iterable[Day]):
+        days = list(days)
+        n_days = len(days)
         week = Week()
         for i, day in enumerate(days):
-            if i % 7 == 0:
+            week.append(day)
+            if i % 7 == 6 or i == n_days - 1:
                 self.append(week)
                 week = Week()
-            week.append(day)
-        self.append(week)
 
     def _calc_stats(self):
         for provider in ('csfd',):
