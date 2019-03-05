@@ -140,3 +140,7 @@ def main():
             stream=sys.stdout, level=logging.INFO, format='%(message)s'
         )
     visualize(args.csv_path, args.output_html_path)
+
+
+if __name__ == '__main__':
+    main()

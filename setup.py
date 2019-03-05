@@ -32,6 +32,9 @@ setup(
         'tzlocal',
     ],
     entry_points={
-        'console_scripts': ['automatic-diary=automatic_diary.cli:main']
+        'console_scripts': [
+            'automatic-diary=automatic_diary.cli:main',
+            'automatic-diary-visualize=automatic_diary.visualize:main',
+        ]
     },
 )
