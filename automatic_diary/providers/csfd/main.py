@@ -1,8 +1,9 @@
 import datetime
 import logging
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -84,6 +85,13 @@ def parse_ratings_pages(
                 provider=provider,
                 subprovider=subprovider,
             )
+
+
+def parse_username(url: str) -> Optional[str]:
+    m = re.search(r'\/\d+-(\S+)\/$', url)
+    if m:
+        return m.group(1)
+    return None
 
 
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
