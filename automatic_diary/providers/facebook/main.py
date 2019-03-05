@@ -64,9 +64,13 @@ def read_html(path: str) -> BeautifulSoup:
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     path = config['path']
+    username = config['username']
     logger.info('Reading Facebook archive %s', path)
     soup = read_html(path)
     for status in parse_timeline_page(soup):
         yield Item(
-            dt=status.dt, text=status.text, provider=provider, subprovider=path
+            dt=status.dt,
+            text=status.text,
+            provider=provider,
+            subprovider=username,
         )
