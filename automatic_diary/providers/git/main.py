@@ -24,6 +24,7 @@ def find_git_repos(base_path: str) -> Iterator[str]:
 def read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
     for repo_path in repo_paths:
         logger.info('Reading repository %s', repo_path)
+        repo_name = os.path.basename(repo_path)
         try:
             log = run_shell_cmd(
                 [
@@ -42,7 +43,7 @@ def read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
             dt_str, text = log_line.split(',', maxsplit=1)
             dt = datetime.datetime.fromisoformat(dt_str)
             yield Item(
-                dt=dt, text=text, provider=provider, subprovider=repo_path
+                dt=dt, text=text, provider=provider, subprovider=repo_name
             )
 
 
