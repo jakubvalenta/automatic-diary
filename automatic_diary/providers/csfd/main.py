@@ -97,5 +97,6 @@ def parse_username(url: str) -> Optional[str]:
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     profile_url = config['profile_url']
     cache_dir = Path(config['cache_dir'])
+    username = parse_username(profile_url)
     pages = download_all_ratings_pages(profile_url, cache_dir, no_cache)
-    return parse_ratings_pages(pages, subprovider=profile_url)
+    return parse_ratings_pages(pages, subprovider=username)
