@@ -1,5 +1,6 @@
 import argparse
 import csv
+import datetime
 import importlib
 import json
 import logging
@@ -42,10 +43,13 @@ def call_providers(
 
 
 def write_csv(items: Iterable[Item], path: str):
+    now = datetime.datetime.now().astimezone()
     with open(path, 'w') as f:
         writer = csv.writer(f, lineterminator='\n')
         encountered_item_tuples: Set[Tuple[str, str, str, str]] = set()
         for item in sorted(items):
+            if item.dt > now:
+                break
             item_tuple = item.astuple()
             if item_tuple not in encountered_item_tuples:
                 writer.writerow(item_tuple)
