@@ -16,10 +16,21 @@ setup(
         'Intended Audience :: End Users/Desktop',
         'Topic :: Utilities',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
     packages=find_packages(),
+    install_requires=[
+        'beautifulsoup4',
+        'caldav',
+        'dateparser',
+        'ics',
+        'jinja2',
+        'more-itertools',
+        'pystache',
+        'python-dateutil',
+        'requests',
+        'tzlocal',
+    ],
     entry_points={
         'console_scripts': ['automatic-diary=automatic_diary.cli:main']
     },

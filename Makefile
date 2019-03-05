@@ -1,4 +1,4 @@
-.PHONY: run setup setup-dev test lint reformat help
+.PHONY: run setup setup-dev test lint tox reformat help
 
 run:  ## Run automatic diary
 	./automatic-diary
@@ -11,10 +11,15 @@ setup-dev:  ## Install development dependencies
 	pipenv install --dev
 
 test:  ## Run unit tests
-	tox -e py37
+	pipenv run python -m unittest
 
 lint:  ## Run linting
-	tox -e lint
+	pipenv run flake8 automatic_diary
+	pipenv run mypy automatic_diary --ignore-missing-imports
+	pipenv run isort -c -rc automatic_diary
+
+tox:  ## Test with tox
+	tox -r
 
 reformat:  ## Reformat Python code using Black
 	black -l 79 --skip-string-normalization automatic_diary
