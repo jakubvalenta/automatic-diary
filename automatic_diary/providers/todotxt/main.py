@@ -11,9 +11,10 @@ provider = Path(__file__).parent.name
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
-    path = config['path']
+    path = Path(config['path'])
+    subprovider = path.name
     logger.info('Reading todo.txt file %s', path)
-    with open(path) as f:
+    with path.open() as f:
         for line in f:
             m = re.match(
                 (
@@ -28,4 +29,6 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
                 int(m.group('y')), int(m.group('m')), int(m.group('d'))
             )
             text = m.group('text')
-            yield Item(dt=dt, text=text, provider=provider, subprovider=path)
+            yield Item(
+                dt=dt, text=text, provider=provider, subprovider=subprovider
+            )
