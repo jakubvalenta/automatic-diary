@@ -1,10 +1,14 @@
 import argparse
 import csv
+import dataclasses
 import datetime
 import importlib
 import json
 import logging
 import os.path
+import random
+import re
+import string
 import sys
 from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
@@ -14,6 +18,19 @@ from automatic_diary.model import Item
 logger = logging.getLogger(__name__)
 
 dir_ = os.path.dirname(__file__)
+
+
+def _obfuscate_lowercase(m: object) -> str:
+    return random.choice(string.ascii_lowercase)
+
+
+def _obfuscate_uppercase(m: object) -> str:
+    return random.choice(string.ascii_uppercase)
+
+
+def obfuscate(s: str) -> str:
+    s = re.sub(r'[a-z]', _obfuscate_lowercase, s)
+    return re.sub(r'[A-Z]', _obfuscate_uppercase, s)
 
 
 def load_configs(
@@ -76,11 +93,22 @@ def main():
     parser.add_argument(
         '-n', '--no-cache', action='store_true', help='Don\'t use cache'
     )
+    parser.add_argument(
+        '-o',
+        '--obfuscate',
+        action='store_true',
+        help='Obfuscate the text output (to publish examples and screenshots)',
+    )
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(
             stream=sys.stdout, level=logging.INFO, format='%(message)s'
         )
     configs = load_configs(args.config_path, args.provider)
-    rows = call_providers(configs, args.no_cache)
-    write_csv(rows, args.output_csv_path)
+    items = call_providers(configs, args.no_cache)
+    if args.obfuscate:
+        items = (
+            dataclasses.replace(item, text=obfuscate(item.text))
+            for item in items
+        )
+    write_csv(items, args.output_csv_path)
