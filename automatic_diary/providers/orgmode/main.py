@@ -44,7 +44,8 @@ def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
-    path = config['path']
+    path = Path(config['path'])
+    subprovider = path.name
     logger.info('Reading Org-mode file %s', path)
-    with open(path) as f:
-        yield from parse_orgmode(f, path)
+    with path.open() as f:
+        yield from parse_orgmode(f, subprovider)
