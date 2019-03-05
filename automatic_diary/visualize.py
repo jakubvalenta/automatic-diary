@@ -5,9 +5,8 @@ import logging
 import statistics
 import sys
 from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, List, Optional
+from typing import Dict, Iterable, Iterator, List
 
 from jinja2 import Environment, PackageLoader
 

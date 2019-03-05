@@ -38,26 +38,31 @@ something else
             Item(
                 dt=datetime.date(2019, 1, 17),
                 text='''foo\nbar''',
+                provider='orgmode',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 17),
                 text='two empty lines are okay',
+                provider='orgmode',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 18),
                 text='''missing empty line is okay''',
+                provider='orgmode',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='something',
+                provider='orgmode',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='something else\n- with\n- a\n- list',
+                provider='orgmode',
                 subprovider=subprovider,
             ),
         ]

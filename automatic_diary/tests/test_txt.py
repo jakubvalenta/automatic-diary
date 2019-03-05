@@ -31,37 +31,44 @@ class TestTxt(TestCase):
         expected = [
             Item(
                 dt=datetime.date(2019, 1, 17),
-                text='''foo''',
+                text='foo',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 17),
-                text='''bar: baz baz''',
+                text='bar: baz baz',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='one: two: foo',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='one: two: three four bar',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='one: two: baz',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='one: spam',
+                provider='txt',
                 subprovider=subprovider,
             ),
             Item(
                 dt=datetime.date(2019, 1, 19),
                 text='lorem',
+                provider='txt',
                 subprovider=subprovider,
             ),
         ]
