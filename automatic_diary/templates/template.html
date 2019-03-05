@@ -158,6 +158,10 @@
          .today {
              border: 1px dashed #000;
          }
+         .highlight {
+             background: #000;
+             color: #fff;
+         }
         </style>
     </head>
     <body>
@@ -175,7 +179,7 @@
                         <div class="content">
                             <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
                             {% for item in day.items %}
-                            <p class="item {{ item.provider }}">
+                            <p class="item {{ item.provider }}{% if item.text is highlighted %} highlight{% endif %}">
                                 <span class="subprovider">{{ item.subprovider }}</span>
                                 <span class="text">{{ item.text }}</span>
                             </p>
