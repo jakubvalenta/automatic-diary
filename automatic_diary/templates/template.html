@@ -15,11 +15,14 @@
             <div class="tr">
                 {% for day in week %}
                 <div class="td{% if day.today %} today{% endif %}{% if day.even %} even{% endif %}">
-                    <div class="content">
-                        <div class="text">
+                    <div class="cell">
+                        <div class="content">
                             <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
                             {% for item in day.items %}
-                            <p class="{{ item.provider }}"><span>{{ item.text }}</span></p>
+                            <p class="item {{ item.provider }}">
+                                <span class="subprovider">{{ item.subprovider }}</span>
+                                <span class="text">{{ item.text }}</span>
+                            </p>
                             {% endfor %}
                         </div>
                         <div class="date">{{ day.date.strftime('%b %Y') }}</div>

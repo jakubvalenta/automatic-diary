@@ -40,16 +40,16 @@ h2 {
 .th {
   text-align: center;
 }
-.content {
+.cell {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 200px;
 }
-.text {
+.content {
   flex-grow: 1;
 }
-.text p {
+.item {
   font-size: 10pt;
   margin: 0.25em 0;
 }
@@ -57,6 +57,9 @@ h2 {
   text-align: center;
   font-size: 10pt;
   color: #bbb;
+}
+.subprovider {
+  display: none;
 }
 
 /*
@@ -101,7 +104,7 @@ color: #000000;
 .todotxt {
   padding-bottom: 0.2em;
 }
-.todotxt span {
+.todotxt .text {
   border-bottom: 0.2em solid #ffe119;
 }
 .line-todotxt {
@@ -109,8 +112,17 @@ color: #000000;
 }
 .git {
   font-family: monospace;
-  color: #666;
   font-size: 9pt;
+  display: flex;
+}
+.git .subprovider {
+  display: block;
+  white-space: nowrap;
+  padding-right: 0.5em;
+}
+.git .text {
+  display: block;
+  color: #666;
 }
 .line-git {
   stroke: #666;
