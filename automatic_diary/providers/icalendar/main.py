@@ -75,22 +75,24 @@ def parse_calendar(lines: Iterable[str]) -> Iterator[Event]:
         yield Event.from_ics_event(event)
 
 
-def read_calendar(path: str) -> Iterator[Event]:
+def read_calendar(path: Path) -> Iterator[Event]:
     logger.info('Reading calendar %s', path)
-    with open(path) as f:
+    with path.open() as f:
         yield from parse_calendar(f)
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     paths = config['paths']
     unique_events: List[Event] = []
-    for path in paths:
+    for path_str in paths:
+        path = Path(path_str)
+        subprovider = path.name
         for event in read_calendar(path):
             if event not in unique_events:
                 yield Item(
                     dt=event.one_date,
                     text=event.name,
                     provider=provider,
-                    subprovider=path,
+                    subprovider=subprovider,
                 )
                 unique_events.append(event)
