@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Iterator
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -25,10 +25,14 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
             )
             if not m:
                 continue
-            dt = datetime.datetime(
+            datetime_ = datetime.datetime(
                 int(m.group('y')), int(m.group('m')), int(m.group('d'))
             )
             text = m.group('text')
-            yield Item(
-                dt=dt, text=text, provider=provider, subprovider=subprovider
+            yield Item.normalized(
+                datetime_=datetime_,
+                text=text,
+                provider=provider,
+                subprovider=subprovider,
+                all_day=True,
             )

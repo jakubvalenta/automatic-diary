@@ -6,113 +6,113 @@ import re
 import statistics
 import sys
 from collections import defaultdict
+from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List
 
 from jinja2 import Environment, PackageLoader
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 
 today = datetime.date.today()
 
 
+@dataclass
 class Day:
     date: datetime.date
-    items: List[Item]
     today: bool
     even: bool
+    items: List[Item] = field(default_factory=list)
 
-    def __init__(self, date: datetime.date):
-        self.date = date
-        self.items = []
-        self.today = self.date == today
-        self.even = bool(self.date.month % 2)
-
-
-def empty_days(date: datetime.date, start: int, stop: int) -> Iterator[Day]:
-    for i in range(start, stop):
-        empty_date = date + datetime.timedelta(days=i)
-        logger.info('Empty day %s', empty_date)
-        yield Day(empty_date)
-
-
-def read_days(csv_path: str) -> Iterator[Day]:
-    last_day = None
-    with open(csv_path) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            dt_str, provider, subprovider, text = row
-            dt = datetime.datetime.fromisoformat(dt_str)
-            item = Item(
-                dt=dt, text=text, provider=provider, subprovider=subprovider
-            )
-            date = item.date
-            if not last_day:
-                last_day = Day(date)
-                yield from empty_days(
-                    last_day.date, start=-dt.weekday(), stop=0
-                )
-            elif date != last_day.date:
-                yield last_day
-                yield from empty_days(
-                    last_day.date, start=1, stop=(date - last_day.date).days
-                )
-                logger.info('New day %s', date)
-                last_day = Day(date)
-            last_day.items.append(item)
-        if last_day:
-            yield last_day
-
-
-class Stat:
-    count: int = 0
-    val: int = 0
+    @classmethod
+    def from_date(cls, date: datetime.date, *args, **kwargs) -> 'Day':
+        today_ = date == today
+        even = bool(date.month % 2)
+        return cls(date, today_, even, *args, **kwargs)
 
 
 class Week(list):
-    stats: Dict[str, Stat]
-
-    def __init__(self):
-        self.stats = defaultdict(Stat)
-
-    def append(self, day: Day):
-        super().append(day)
-        for item in day.items:
-            self.stats[item.provider].count += 1
+    pass
 
 
-class Year(list):
-    def __init__(self, days: Iterable[Day]):
-        self._add_days(days)
-        self._calc_stats()
+def _create_days_around(
+    date: datetime.date, start: int, stop: int
+) -> Iterator[Day]:
+    for i in range(start, stop):
+        empty_date = date + datetime.timedelta(days=i)
+        logger.info('Empty day %s', empty_date)
+        yield Day.from_date(empty_date)
 
-    def _add_days(self, days: Iterable[Day]):
-        days = list(days)
-        n_days = len(days)
-        week = Week()
-        for i, day in enumerate(days):
-            week.append(day)
-            if i % 7 == 6 or i == n_days - 1:
-                self.append(week)
-                week = Week()
 
-    def _calc_stats(self):
-        provider_counts = defaultdict(list)
-        for week in self:
-            for provider, stat in week.stats.items():
-                if stat.count:
-                    provider_counts[provider].append(stat.count)
-        provider_means = {
-            provider: statistics.mean(counts)
-            for provider, counts in provider_counts.items()
+def _read_items(csv_path: str) -> Iterator[Item]:
+    with open(csv_path) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            yield Item.from_tuple(row)
+
+
+def _group_items_in_days(items: Iterable[Item]) -> Iterator[Day]:
+    current_date = None
+    current_items = []
+    for item in items:
+        date: datetime.date = item.date
+        if not current_date:
+            yield from _create_days_around(date, start=-date.weekday(), stop=0)
+            current_date = date
+        elif date != current_date:
+            yield Day.from_date(current_date, current_items)
+            yield from _create_days_around(
+                current_date, start=1, stop=(date - current_date).days
+            )
+            logger.info('New day %s', date)
+            current_date = date
+            current_items = []
+        current_items.append(item)
+    if current_date:
+        yield Day.from_date(current_date, current_items)
+
+
+def _calc_perc(part: float, whole: float) -> int:
+    return round(min(part / whole, 1) * 100)
+
+
+def _calc_stats(weeks: Iterable[Week]) -> List[Dict[str, int]]:
+    provider_counts_by_week: List[Dict[str, int]] = []
+    provider_counts: Dict[str, List[int]] = defaultdict(list)
+    for week in weeks:
+        week_provider_counts: Dict[str, int] = defaultdict(int)
+        for day in week:
+            for item in day.items:
+                week_provider_counts[item.provider] += 1
+        for provider, counts in week_provider_counts.items():
+            provider_counts[provider].append(counts)
+        provider_counts_by_week.append(week_provider_counts)
+    provider_means: Dict[str, float] = {
+        provider: statistics.mean(counts)
+        for provider, counts in provider_counts.items()
+    }
+    stats = [
+        {
+            provider: _calc_perc(counts, provider_means[provider])
+            for provider, counts in week_provider_counts.items()
         }
-        for week in self:
-            for provider, stat in week.stats.items():
-                mean = provider_means[provider]
-                stat.val = round(min(stat.count / mean, 1) * 100)
+        for week_provider_counts in provider_counts_by_week
+    ]
+    return stats
+
+
+def _group_days_in_weeks(days: Iterable[Day]) -> Iterator[Week]:
+    days = list(days)
+    n_days = len(days)
+    week = Week()
+    for i, day in enumerate(days):
+        week.append(day)
+        if i % 7 == 6 or i == n_days - 1:
+            yield week
+            week = Week()
 
 
 def _matches_regex(s: str, regex: str) -> bool:
@@ -132,14 +132,17 @@ def _render_template(
         f.writelines(stream)
 
 
-def visualize(csv_path: str, output_html_path: str, highlight: str):
-    days = read_days(csv_path)
-    year = Year(days)
+def _visualize(csv_path: str, output_html_path: str, highlight: str):
+    items = _read_items(csv_path)
+    days = _group_items_in_days(items)
+    weeks = list(_group_days_in_weeks(days))
+    stats = _calc_stats(weeks)
     _render_template(
         ['automatic_diary', 'templates', 'template.html'],
         output_html_path,
         highlight,
-        year=year,
+        weeks=weeks,
+        stats=stats,
     )
 
 
@@ -160,7 +163,7 @@ def main():
         logging.basicConfig(
             stream=sys.stdout, level=logging.INFO, format='%(message)s'
         )
-    visualize(args.csv_path, args.output_html_path, args.highlight)
+    _visualize(args.csv_path, args.output_html_path, args.highlight)
 
 
 if __name__ == '__main__':

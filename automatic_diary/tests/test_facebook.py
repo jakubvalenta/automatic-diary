@@ -4,7 +4,7 @@ from unittest import TestCase
 import dateutil.tz
 from ddt import data, ddt, unpack
 
-from automatic_diary.providers.facebook.main import parse_date_time
+from automatic_diary.providers.facebook.main import parse_datetime
 
 
 @ddt
@@ -24,6 +24,6 @@ class TestFacebook(TestCase):
         ),
     )
     @unpack
-    def test_parse_date_time(self, date_str, expected):
-        result = parse_date_time(date_str)
+    def test_parse_datetime(self, s, expected):
+        result = parse_datetime(s)
         self.assertEqual(result, expected)

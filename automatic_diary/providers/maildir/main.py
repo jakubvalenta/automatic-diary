@@ -4,30 +4,15 @@ import email.header
 import email.utils
 import glob
 import logging
-import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Union
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 THeader = Union[str, email.header.Header, None]
-
-
-def load_config(config_json: dict) -> dict:
-    try:
-        received_pathname = config_json['maildir']['received_pathname']
-        sent_pathname = config_json['maildir']['sent_pathname']
-    except (KeyError, TypeError):
-        logger.error('Invalid config')
-        sys.exit(1)
-    return {
-        'received_pathname': received_pathname,
-        'sent_pathname': sent_pathname,
-    }
 
 
 def _decode_header(header: THeader) -> str:
@@ -55,19 +40,10 @@ def _parse_date(header: THeader) -> datetime.datetime:
     return email.utils.parsedate_to_datetime(header_str)
 
 
-@dataclass
-class Message:
-    subject: str
-    from_: str
-    to_: str
-    dt: datetime.datetime
-    sent: bool
-
-    @property
-    def text(self):
-        if self.sent:
-            return f'To {self.to_}: {self.subject}'.strip()
-        return f'From {self.from_}: {self.subject}'.strip()
+def _format_text(from_: str, to_: str, subject: str, sent: bool) -> str:
+    if sent:
+        return f'To {to_}: {subject}'.strip()
+    return f'From {from_}: {subject}'.strip()
 
 
 def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
@@ -78,16 +54,16 @@ def _read_messages(pathname: str, sent: bool) -> Iterator[Item]:
         if not email_message['Date']:
             logger.warning('Skipping message without date: %s', path)
             continue
-        message = Message(
-            subject=_decode_header(email_message['Subject']),
-            from_=_parse_address(email_message['From']),
-            to_=_parse_address(email_message['To']),
-            dt=_parse_date(email_message['Date']),
-            sent=sent,
+        datetime_ = _parse_date(email_message['Date'])
+        text = _format_text(
+            _parse_address(email_message['From']),
+            _parse_address(email_message['To']),
+            _decode_header(email_message['Subject']),
+            sent,
         )
-        yield Item(
-            dt=message.dt,
-            text=message.text,
+        yield Item.normalized(
+            datetime_=datetime_,
+            text=text,
             provider=provider,
             subprovider=pathname,
         )

@@ -6,7 +6,7 @@ from typing import Iterator
 
 import pystache
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -22,9 +22,14 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     with path.open() as f:
         reader = csv.DictReader(f)
         for row in reader:
-            dt_str = renderer.render(date_source_tmpl, row)
             text = renderer.render(text_source_tmpl, row)
-            dt = datetime.datetime.strptime(dt_str, config['date_format'])
-            yield Item(
-                dt=dt, text=text, provider=provider, subprovider=subprovider
+            datetime_ = datetime.datetime.strptime(
+                renderer.render(date_source_tmpl, row), config['date_format']
+            )
+            yield Item.normalized(
+                datetime_=datetime_,
+                text=text,
+                provider=provider,
+                subprovider=subprovider,
+                all_day=True,
             )

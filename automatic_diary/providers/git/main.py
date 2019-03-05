@@ -3,52 +3,58 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import Iterable, Iterator, Tuple
+from typing import Iterable, Iterator
 
-from automatic_diary.common import Item, run_shell_cmd
+from automatic_diary.model import Item
+from automatic_diary.shell import run_shell_cmd
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
-TDateTimeTextSubprovider = Tuple[datetime.datetime, str, str]
 
-
-def find_git_repos(base_path: str) -> Iterator[str]:
+def _find_git_repos(base_path: str) -> Iterator[str]:
     for entry in os.scandir(base_path):
         if entry.name == '.git':
             yield base_path
         if not entry.name.startswith('.') and entry.is_dir():
-            yield from find_git_repos(entry.path)
+            yield from _find_git_repos(entry.path)
 
 
-def read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
+def _call_git_log(repo_path: str, author: str) -> str:
+    return run_shell_cmd(
+        [
+            'git',
+            '--no-pager',
+            'log',
+            f'--author={author}',
+            '--format=%ad,%s',
+            '--date=iso8601-strict',
+        ],
+        cwd=repo_path,
+    )
+
+
+def _read_git_logs(repo_paths: Iterable[str], author: str) -> Iterator[Item]:
     for repo_path in repo_paths:
         logger.info('Reading repository %s', repo_path)
         repo_name = os.path.basename(repo_path)
         try:
-            log = run_shell_cmd(
-                [
-                    'git',
-                    '--no-pager',
-                    'log',
-                    f'--author={author}',
-                    '--format=%ad,%s',
-                    '--date=iso8601-strict',
-                ],
-                cwd=repo_path,
-            )
+            log = _call_git_log(repo_path, author)
         except subprocess.CalledProcessError:
             continue
         for log_line in log.splitlines():
-            dt_str, text = log_line.split(',', maxsplit=1)
-            dt = datetime.datetime.fromisoformat(dt_str)
-            yield Item(
-                dt=dt, text=text, provider=provider, subprovider=repo_name
+            formatted_datetime_, text = log_line.split(',', maxsplit=1)
+            datetime_ = datetime.datetime.fromisoformat(formatted_datetime_)
+            yield Item.normalized(
+                datetime_=datetime_,
+                text=text,
+                provider=provider,
+                subprovider=repo_name,
             )
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     base_path = config['base_path']
     author = config['author']
-    repo_paths = find_git_repos(base_path)
-    return read_git_logs(repo_paths, author)
+    repo_paths = _find_git_repos(base_path)
+    return _read_git_logs(repo_paths, author)

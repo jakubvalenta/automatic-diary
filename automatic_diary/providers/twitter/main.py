@@ -1,34 +1,35 @@
 import datetime
-import glob
 import json
 import logging
-import os.path
 from pathlib import Path
 from typing import Iterator
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 
-def _parse_tweets_file(path: str) -> Iterator[Item]:
-    with open(path) as f:
+def _parse_tweets_file(path: Path) -> Iterator[Item]:
+    with path.open() as f:
         f.readline()  # Skip first line, which is not JSOn
         tweets_data = json.load(f)
     for tweet_data in tweets_data:
-        dt_str = tweet_data['created_at']
-        dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S %z')
+        datetime_ = datetime.datetime.strptime(
+            tweet_data['created_at'], '%Y-%m-%d %H:%M:%S %z'
+        )
         text = tweet_data['text']
         screen_name = tweet_data['user']['screen_name']
-        yield Item(
-            dt=dt, text=text, provider=provider, subprovider=screen_name
+        yield Item.normalized(
+            datetime_=datetime_,
+            text=text,
+            provider=provider,
+            subprovider=screen_name,
         )
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
-    path = config['path']
+    path = Path(config['path'])
     logger.info('Reading Twitter archive %s', path)
-    pathname = os.path.join(path, 'data', 'js', 'tweets', '*.js')
-    for tweets_file_path in glob.glob(pathname):
+    for tweets_file_path in (path / 'data' / 'js' / 'tweets').glob('*.js'):
         yield from _parse_tweets_file(tweets_file_path)

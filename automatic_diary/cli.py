@@ -9,7 +9,7 @@ import sys
 from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
 from automatic_diary import __title__
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def write_csv(items: Iterable[Item], path: str):
         writer = csv.writer(f, lineterminator='\n')
         encountered_item_tuples: Set[Tuple[str, str, str, str]] = set()
         for item in sorted(items):
-            if item.dt > now:
+            if item.datetime_ > now:
                 break
             item_tuple = item.astuple()
             if item_tuple not in encountered_item_tuples:

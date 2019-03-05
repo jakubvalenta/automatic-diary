@@ -171,7 +171,7 @@
                 <div class="th">{{ weekday }}</div>
                 {% endfor %}
             </div>
-            {% for week in year %}
+            {% for week in weeks %}
             <div class="tr">
                 {% for day in week %}
                 <div class="td{% if day.today %} today{% endif %}{% if day.even %} even{% endif %}">
@@ -190,8 +190,8 @@
                 </div>
                 {% endfor %}
                 <div class="lines">
-                    {% for provider, stat in week.stats.items() %}
-                    <div class="line line-{{ provider }}" style="left:{{ stat.val }}%"></div>
+                    {% for provider, perc in stats[loop.index0].items() %}
+                    <div class="line line-{{ provider }}" style="left:{{ perc }}%"></div>
                     {% endfor %}
                 </div>
             </div>

@@ -7,8 +7,9 @@ from typing import Iterable, Iterator, List
 
 import caldav
 
-from automatic_diary.common import Item, lookup_secret
+from automatic_diary.model import Item
 from automatic_diary.providers.icalendar.main import parse_calendar
+from automatic_diary.shell import lookup_secret
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -35,7 +36,7 @@ def _write_events_to_cache(events: List[caldav.Event], cache_dir: Path):
         cache_file.write_text(event.data)
 
 
-def download_events(
+def _download_events(
     url: str, username: str, password: str, cache_dir: Path, no_cache: bool
 ) -> List[str]:
     events_data = list(_read_events_data_from_cache(cache_dir, no_cache))
@@ -54,17 +55,18 @@ def download_events(
     return [event.data for event in events]
 
 
-def parse_events(
+def _parse_events(
     events_data: Iterable[str], subprovider: str
 ) -> Iterator[Item]:
     for event_data in events_data:
         lines = io.StringIO(event_data)
         for event in parse_calendar(lines):
-            yield Item(
-                dt=event.one_date,
+            yield Item.normalized(
+                datetime_=event.begin,
                 text=event.name,
                 provider=provider,
                 subprovider=subprovider,
+                all_day=event.all_day,
             )
 
 
@@ -73,5 +75,7 @@ def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     username = config['username']
     password = lookup_secret(config['password_key'], config['password_val'])
     cache_dir = Path(config['cache_dir'])
-    events_data = download_events(url, username, password, cache_dir, no_cache)
-    return parse_events(events_data, subprovider=url)
+    events_data = _download_events(
+        url, username, password, cache_dir, no_cache
+    )
+    return _parse_events(events_data, subprovider=url)

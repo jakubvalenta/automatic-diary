@@ -3,12 +3,12 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, Optional
+from typing import Iterable, Iterator
 
 import requests
 from bs4 import BeautifulSoup
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -25,7 +25,7 @@ HEADERS = {
 @dataclass
 class Film:
     title: str
-    date: datetime.date
+    datetime_: datetime.datetime
 
 
 def _download_ratings_page(
@@ -45,7 +45,7 @@ def _download_ratings_page(
     return html
 
 
-def download_all_ratings_pages(
+def _download_all_ratings_pages(
     profile_url: str, cache_dir: Path, no_cache: bool
 ) -> Iterator[BeautifulSoup]:
     html = _download_ratings_page(profile_url, cache_dir, no_cache)
@@ -67,36 +67,37 @@ def download_all_ratings_pages(
 def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
     for tr in soup.select('.profile-content .ui-table-list tbody tr'):
         title = tr.find(class_='film').string
-        date = datetime.datetime.strptime(
+        datetime_ = datetime.datetime.strptime(
             tr.find_all('td')[-1].string, '%d.%m.%Y'
-        ).date()
-        logger.info('Found film %s rated on %s', title, date)
-        yield Film(title=title, date=date)
+        )
+        logger.info('Found film %s rated on %s', title, datetime_.date())
+        yield Film(title=title, datetime_=datetime_)
 
 
-def parse_ratings_pages(
+def _parse_ratings_pages(
     soups: Iterable[BeautifulSoup], subprovider: str
 ) -> Iterator[Item]:
     for soup in soups:
         for film in _parse_ratings_page(soup):
-            yield Item(
-                dt=film.date,
+            yield Item.normalized(
+                datetime_=film.datetime_,
                 text=film.title,
                 provider=provider,
                 subprovider=subprovider,
+                all_day=True,
             )
 
 
-def parse_username(url: str) -> Optional[str]:
+def parse_username(url: str) -> str:
     m = re.search(r'\/\d+-(\S+)\/$', url)
-    if m:
-        return m.group(1)
-    return None
+    if not m:
+        raise ValueError('Failed to parse username')
+    return m.group(1)
 
 
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     profile_url = config['profile_url']
     cache_dir = Path(config['cache_dir'])
     username = parse_username(profile_url)
-    pages = download_all_ratings_pages(profile_url, cache_dir, no_cache)
-    return parse_ratings_pages(pages, subprovider=username)
+    pages = _download_all_ratings_pages(profile_url, cache_dir, no_cache)
+    return _parse_ratings_pages(pages, subprovider=username)

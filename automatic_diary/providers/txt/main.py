@@ -6,7 +6,7 @@ from typing import IO, Iterator, List, Optional
 
 from more_itertools import peekable
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -23,7 +23,7 @@ def parse_txt(
     max_indent: int = 3,
     sep_after_max_indent: str = ' ',
 ) -> Iterator[Item]:
-    current_date: Optional[datetime.date] = None
+    current_datetime: Optional[datetime.datetime] = None
     stack: List[str] = []
     lines = peekable(f)
     for line in lines:
@@ -34,22 +34,21 @@ def parse_txt(
         m = regex_heading.match(line_clean)
         if m:
             if stack:
-                if not current_date:
+                if not current_datetime:
                     raise ValueError('No date found')
                 text = sep.join(stack)
-                yield Item(
-                    dt=current_date,
+                yield Item.normalized(
+                    datetime_=current_datetime,
                     text=text,
                     provider=provider,
                     subprovider=subprovider,
+                    all_day=True,
                 )
                 stack.clear()
             date_str = m.group('date')
-            current_date = datetime.datetime.strptime(
-                date_str, '%Y-%m-%d'
-            ).date()
+            current_datetime = datetime.datetime.strptime(date_str, '%Y-%m-%d')
         # Starts with a non-date line
-        elif not current_date:
+        elif not current_datetime:
             raise ValueError('No date found')
         # Content line
         else:
@@ -70,11 +69,12 @@ def parse_txt(
                 continue
             if indent_size <= len(stack):
                 text = sep.join(stack)
-                yield Item(
-                    dt=current_date,
+                yield Item.normalized(
+                    datetime_=current_datetime,
                     text=text,
                     provider=provider,
                     subprovider=subprovider,
+                    all_day=True,
                 )
                 if indent_size < len(stack):
                     stack.pop()
@@ -82,11 +82,12 @@ def parse_txt(
             stack.append(raw_text)
         if not lines and stack:
             text = sep.join(stack)
-            yield Item(
-                dt=current_date,
+            yield Item.normalized(
+                datetime_=current_datetime,
                 text=text,
                 provider=provider,
                 subprovider=subprovider,
+                all_day=True,
             )
 
 

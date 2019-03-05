@@ -8,24 +8,15 @@ from typing import Iterator
 import dateparser
 from bs4 import BeautifulSoup
 
-from automatic_diary.common import Item
+from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 
-def parse_date_time(s: str) -> datetime.datetime:
-    s = re.sub(r'\s(at|um)\s', ' ', s)
-    s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
-    s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
-    dt = dateparser.parse(s)
-    logger.info('Parsed date string %s as %s', s, dt)
-    return dt
-
-
 @dataclass
 class Status:
-    dt: datetime.datetime
+    datetime_: datetime.datetime
     text: str
 
 
@@ -40,7 +31,16 @@ filter_regex = re.compile(
 )
 
 
-def parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
+def parse_datetime(s: str) -> datetime.datetime:
+    s = re.sub(r'\s(at|um)\s', ' ', s)
+    s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
+    s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
+    datetime_ = dateparser.parse(s)
+    logger.info('Parsed date string %s as %s', s, datetime_)
+    return datetime_
+
+
+def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
     for p in soup.find_all('p'):
         comment_el = p.find(class_='comment')
         if not comment_el:
@@ -49,13 +49,13 @@ def parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
         if not text or filter_regex.search(str(p.contents[1])):
             logger.warn('Not a status, skipping: "%s"', text)
             continue
-        dt_str = p.find(class_='meta').string
-        dt = parse_date_time(dt_str)
-        logger.info('Found status from %s: %s', dt, text)
-        yield Status(dt=dt, text=text)
+        formatted_datetime = p.find(class_='meta').string
+        datetime_ = parse_datetime(formatted_datetime)
+        logger.info('Found status from %s: %s', datetime_, text)
+        yield Status(datetime_=datetime_, text=text)
 
 
-def read_html(path: str) -> BeautifulSoup:
+def _read_html(path: str) -> BeautifulSoup:
     with open(path) as f:
         html = f.read()
         soup = BeautifulSoup(html, 'html.parser')
@@ -66,10 +66,10 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     path = config['path']
     username = config['username']
     logger.info('Reading Facebook archive %s', path)
-    soup = read_html(path)
-    for status in parse_timeline_page(soup):
-        yield Item(
-            dt=status.dt,
+    soup = _read_html(path)
+    for status in _parse_timeline_page(soup):
+        yield Item.normalized(
+            datetime_=status.datetime_,
             text=status.text,
             provider=provider,
             subprovider=username,
