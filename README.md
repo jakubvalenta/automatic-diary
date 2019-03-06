@@ -337,6 +337,12 @@ Example CSV output:
 2019-01-25,todotxt,done.txt,Opravit Ondrovi kolo
 ```
 
+See the help for all command line options:
+
+``` shell
+./automatic-diary --help
+```
+
 ### Visualization
 
 The output CSV file can also be rendered as an HTML document which looks kind of
@@ -351,6 +357,12 @@ Example:
 
 ``` shell
 ./automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
+```
+
+See the help for all command line options:
+
+``` shell
+./automatic-diary-visualize --help
 ```
 
 ## Development
