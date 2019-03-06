@@ -1,0 +1,82 @@
+[
+    {
+        "provider": "git",
+        "config": {
+            "base_path": "/home/jane/devel",
+            "author": "Jane Doe"
+        }
+    },
+    {
+        "provider": "caldav",
+        "config": {
+            "url": "https://dav.example.com/12345",
+            "username": "example@example.com",
+            "password_key": "e-source-uid",
+            "password_val": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+            "cache_dir": "/home/jane/.cache/automatic-diary/caldav/example@example.com"
+        }
+    },
+    {
+        "provider": "csfd",
+        "config": {
+            "profile_url": "https://www.csfd.cz/uzivatel/12345-janedoe/",
+            "cache_dir": "/home/jane/.cache/automatic-diary/csfd/12345-janedoe"
+        }
+    },
+    {
+        "provider": "maildir",
+        "config": {
+            "received_pathname": "/home/jane/mail/folders/Archives/subfolders/20*/cur/*/*",
+            "sent_pathname": "/home/jane/mail/folders/Sent/cur/*/*"
+        }
+    },
+    {
+        "provider": "icalendar",
+        "config": {
+            "paths": [
+                "/home/jane/calendar-2015.ics",
+                "/home/jane/calendar-2016.ics"
+            ]
+        }
+    },
+    {
+        "provider": "csv",
+        "config": {
+            "path": "/home/jane/sport.csv",
+            "date_source": "{{date}}",
+            "date_format": "<%Y-%m-%d %a>",
+            "text_source": "Running {{track}} {{time}}{{#note}} ({{.}}){{/note}}"
+        }
+    },
+    {
+        "provider": "todotxt",
+        "config": {
+            "path": "/home/jane/todo_txt/done.txt"
+        }
+    },
+    {
+        "provider": "facebook",
+        "config": {
+            "path": "/home/jane/facebook_archive-2017/html/timeline.htm",
+            "username": "jane-doe"
+        }
+    },
+    {
+        "provider": "twitter",
+        "config": {
+            "path": "/home/jane/twitter_archive-2018"
+        }
+    },
+    {
+        "provider": "orgmode",
+        "config": {
+            "path": "/home/jane/diary.org"
+        }
+    },
+    {
+        "provider": "txt",
+        "config": {
+            "path": "/home/jane/diary.txt"
+        }
+    }
+]
