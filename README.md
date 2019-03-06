@@ -157,7 +157,7 @@ configuration.
 
     ``` json
     {
-        "path": "<path to wall.htm or timeline.htm>"
+        "path": "<path to wall.htm or timeline.htm>",
         "username": "<facebook username>"
     }
     ```
@@ -187,7 +187,10 @@ configuration.
 
     ``` json
     {
-        "paths": ["<path to an .ics file>"...],
+        "paths": [
+            "<path to an .ics file>",
+            ...
+        ]
     }
     ```
 
@@ -213,15 +216,15 @@ configuration.
 
 - Input: Org-mode (.org) file in format:
 
-    ```
-    * <2019-01-17 Thu>
+    ``` org
+    \* <2019-01-17 Thu>
 
     Lorem ipsum
     foo.
 
     bar
 
-    * <2019-01-18 Fri>
+    \* <2019-01-18 Fri>
 
     spam spam
     ...
@@ -229,7 +232,7 @@ configuration.
 
 - Output: Example:
 
-    ```
+    ``` csv
     2019-01-17,Lorem ipsum foo.
     2019-01-17,bar
     2019-01-18,spam spam
@@ -288,7 +291,7 @@ configuration.
 
 - Output: Example:
 
-    ```
+    ``` csv
     2015-12-02,Some
     2015-12-02,Text
     2015-12-02,Lorem: Ipsum: Hierarchy
@@ -310,25 +313,25 @@ configuration.
 
 The basic output of Automatic Diary is a CSV file. Generate it by running:
 
-```
+``` shell
 ./automatic-diary <config path> <output csv path>
 ```
 
 Example:
 
-```
+``` shell
 ./automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
 ```
 
 The CSV output is in format:
 
-```
+``` csv
 <datetime>,<provider>,<subprovider>,<text>
 ```
 
 Example CSV output:
 
-```
+``` csv
 2019-01-23T15:31:54-08:00,git,human-activities,model: Log exceptions while scanning
 2019-01-24T09:00:00+01:00,caldav,https://dav.mailbox.org/caldav/Y2FsOi8vMC8yNg,DHL Packstation
 2019-01-25,todotxt,done.txt,Opravit Ondrovi kolo
@@ -340,13 +343,13 @@ The output CSV file can also be rendered as an HTML document which looks kind of
 like a calendar. See the screenshot above. Generate this HTML document by
 running:
 
-```
+``` shell
 ./automatic-diary-visualize <csv path> <output html path>
 ```
 
 Example:
 
-```
+``` shell
 ./automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
 ```
 
@@ -354,19 +357,19 @@ Example:
 
 ### Installation
 
-```
+``` shell
 make setup-dev
 ```
 
 ### Testing and linting
 
-```
+``` shell
 make test
 make lint
 ```
 
 ### Help
 
-```
+``` shell
 make help
 ```
