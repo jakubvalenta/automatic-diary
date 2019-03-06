@@ -8,7 +8,8 @@ various digital sources into one easy to read stream.
 ![Automatic Diary screenshot](./automatic_diary_screenshot.png)
 
 _On the screenshot above, you can see: calendar events (blue), completed todo
-list items (yellow), sport activity (green), and films watched (red)._
+list items (yellow), software development work (gray), sport activity (green),
+and films watched (red)._
 
 ## Why
 
@@ -74,9 +75,10 @@ now it is considered low priority:
 $ make setup
 ```
 
-## Usage
+## Configuration
 
-### Supported providers (date sources)
+First you need to configure all the providers -- sources from which the data for
+your automatic diary stream will be read. The following providers are supported:
 
 - caldav
 - csfd
@@ -90,10 +92,219 @@ $ make setup
 - twitter
 - txt
 
-### Configuration
+All providers are configured using a single `config.json` file. Use
+[config-sample.json](./config-sample.json) as a template for your own
+configuration.
 
-The providers are configured using a `config.json` file. Use
-[config-sample.json](./config-sample.json) as a documentation and template.
+### CalDAV (caldav)
+
+- Input: CalDAV server
+
+- Output: Names and locations of calendar events
+
+- Configuration:
+
+    ``` json
+    {
+        "url": "<server url>",
+        "username": "<server authentication username>",
+        "password_key": "<server authentication password -- libsecret key>",
+        "password_val": "<server authentication password -- libsecret value>",
+        "cache_dir": "<cache directory path>"
+    }
+    ```
+
+### ČSFD (csfd)
+
+- Input: User profile on https://www.csfd.cz/ (film database website, something
+  like IMDB)
+
+- Output: Titles of films rated
+
+- Configuration:
+
+    ``` json
+    {
+        "profile_url": "<csfd.cz profile url>",
+        "cache_dir": "<cache directory path>"
+    }
+    ```
+
+### CSV (csv)
+
+- Input: CSV spreadsheet (.csv) file
+
+- Output: Rows formatted using a template
+
+- Configuration
+
+    ``` json
+    {
+        "path": "<csv file path>",
+        "date_source": "{{<column name>}}",
+        "date_format": "<strptime date format>",
+        "text_source": "<template string in the Mustache format>"
+    }
+    ```
+
+### Facebook (facebook)
+
+- Input: Downloaded Facebook archive
+
+- Output: Texts of statuses
+
+- Configuration
+
+    ``` json
+    {
+        "path": "<path to wall.htm or timeline.htm>"
+        "username": "<facebook username>"
+    }
+    ```
+
+### Git (git)
+
+- Input: Directory with checked-out Git repositories and an author name
+
+- Output: Commit messages by the author from all repositories
+
+- Configuration
+
+    ``` json
+    "config": {
+        "base_path": "<path to directory - will be searched recursively for git repos>",
+        "author": "<author name>"
+    }
+    ```
+
+### iCalendar (icalendar)
+
+- Input: Calendar events stored offline in the iCalendar (.ics) format
+
+- Output: Names and locations of calendar events
+
+- Configuration:
+
+    ``` json
+    {
+        "paths": ["<path to an .ics file>"...],
+    }
+    ```
+
+    Not that events from all the listed .ics files will be merged -- duplicate
+    events removed.
+
+### Maildir (maildir)
+
+- Input: Emails stored offline in the Maildir format
+
+- Output: Subjects of emails
+
+- Configuration:
+
+    ``` json
+    {
+        "received_pathname": "<glob pathname of directories with received emails>",
+        "sent_pathname": "<glob pathname of directories with sent emails>"
+    }
+    ```
+
+### Org-mode (orgmode)
+
+- Input: Org-mode (.org) file in format:
+
+    ```
+    * <2019-01-17 Thu>
+
+    Lorem ipsum
+    foo.
+
+    bar
+
+    * <2019-01-18 Fri>
+
+    spam spam
+    ...
+    ```
+
+- Output: Example:
+
+    ```
+    2019-01-17,Lorem ipsum foo.
+    2019-01-17,bar
+    2019-01-18,spam spam
+    ```
+
+    ``` json
+    {
+        "path": "<path to the .org file>"
+    }
+    ```
+
+### Todo.txt (todotxt)
+
+- Input: Todo.txt completed tasks file
+
+- Output: Texts of completed tasks
+
+- Configuration
+
+    ``` json
+    {
+        "path": "<done.txt file path>"
+    }
+    ```
+
+### Twitter (twitter)
+
+- Input: Downloaded Twitter archive
+
+- Output: Texts of tweets
+
+- Configuration
+
+    ``` json
+    {
+        "path": "<path to twitter archive directory>"
+    }
+    ```
+
+### Plain text file (txt)
+
+- Input: Plain text (.txt) file in format:
+
+    ```
+    2015-12-02 St
+        Some
+        Text
+        Lorem
+            Ipsum
+                Hierarchy
+                Spam
+    2015-12-03 Čt
+        Foobar
+        ...
+    ```
+
+- Output: Example:
+
+    ```
+    2015-12-02,Some
+    2015-12-02,Text
+    2015-12-02,Lorem: Ipsum: Hierarchy
+    2015-12-02,Lorem: Ipsum: Spam
+    2015-12-03,Foobar
+    ```
+
+- Configuration
+
+    ``` json
+    {
+        "path": "<path to the .txt file>"
+    }
+    ```
+
+## Usage
 
 ### Generating CSV
 
@@ -109,13 +320,13 @@ Example:
 ./automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
 ```
 
-The output is in format:
+The CSV output is in format:
 
 ```
 <datetime>,<provider>,<subprovider>,<text>
 ```
 
-Example output:
+Example CSV output:
 
 ```
 2019-01-23T15:31:54-08:00,git,human-activities,model: Log exceptions while scanning
@@ -125,9 +336,9 @@ Example output:
 
 ### Visualization
 
-The generated CSV file can also be rendered as an HTML document which resembles
-a calendar (this is what is on the screenshot above). Generate the HTML
-visualization by running:
+The output CSV file can also be rendered as an HTML document which looks kind of
+like a calendar. See the screenshot above. Generate this HTML document by
+running:
 
 ```
 ./automatic-diary-visualize <csv path> <output html path>
@@ -152,4 +363,10 @@ make setup-dev
 ```
 make test
 make lint
+```
+
+### Help
+
+```
+make help
 ```

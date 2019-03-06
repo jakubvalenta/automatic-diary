@@ -7,6 +7,13 @@
         }
     },
     {
+        "provider": "git",
+        "config": {
+            "base_path": "/home/jane/work",
+            "author": "Jane Doe"
+        }
+    },
+    {
         "provider": "caldav",
         "config": {
             "url": "https://dav.example.com/12345",
