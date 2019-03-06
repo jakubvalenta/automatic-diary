@@ -1,13 +1,17 @@
+import unicodedata
 from unittest import TestCase
-from unittest.mock import patch
 
 from automatic_diary.cli import obfuscate
 
 
 class TestCLI(TestCase):
-    @patch('automatic_diary.cli._obfuscate_uppercase', return_value='X')
-    @patch('automatic_diary.cli._obfuscate_lowercase', return_value='y')
-    def test_parse_date_time(self, url, expected):
-        result = obfuscate('Ve škole domluveno tisknutí v 10 s Mirkem, ale.')
-        expected = 'Xy šyyyy yyyyyyyyy yyyyyyyí y 10 y Xyyyyy, yyy.'
-        self.assertEqual(result, expected)
+    def test_obfuscate(self):
+        source = 'Ve škole, 10'
+        result = obfuscate(source)
+        self.assertNotEqual(source, result)
+        self.assertEqual(len(source), len(result))
+        for source_char, result_char in zip(source, result):
+            self.assertEqual(
+                unicodedata.category(source_char),
+                unicodedata.category(result_char),
+            )

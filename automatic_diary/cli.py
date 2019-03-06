@@ -7,9 +7,9 @@ import json
 import logging
 import os.path
 import random
-import re
 import string
 import sys
+import unicodedata
 from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
 from automatic_diary import __title__
@@ -20,17 +20,19 @@ logger = logging.getLogger(__name__)
 dir_ = os.path.dirname(__file__)
 
 
-def _obfuscate_lowercase(m: object) -> str:
-    return random.choice(string.ascii_lowercase)
-
-
-def _obfuscate_uppercase(m: object) -> str:
-    return random.choice(string.ascii_uppercase)
+def _obfuscate_char(char: str) -> str:
+    category = unicodedata.category(char)
+    if category == 'Lu':
+        return random.choice(string.ascii_uppercase)
+    if category == 'Ll':
+        return random.choice(string.ascii_lowercase)
+    if category == 'Nd':
+        return random.choice(string.digits)
+    return char
 
 
 def obfuscate(s: str) -> str:
-    s = re.sub(r'[a-z]', _obfuscate_lowercase, s)
-    return re.sub(r'[A-Z]', _obfuscate_uppercase, s)
+    return ''.join(_obfuscate_char(char) for char in s)
 
 
 def load_configs(
