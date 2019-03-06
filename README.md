@@ -70,7 +70,7 @@ now it is considered low priority:
 
 ### Installation on Arch Linux
 
-```
+``` shell
 # pacman -S pipenv jq libsecret
 $ make setup
 ```
@@ -216,19 +216,17 @@ configuration.
 
 - Input: Org-mode (.org) file in format:
 
-    ``` org
-    \* <2019-01-17 Thu>
+        * <2019-01-17 Thu>
 
-    Lorem ipsum
-    foo.
+        Lorem ipsum
+        foo.
 
-    bar
+        bar
 
-    \* <2019-01-18 Fri>
+        * <2019-01-18 Fri>
 
-    spam spam
-    ...
-    ```
+        spam spam
+        ...
 
 - Output: Example:
 
