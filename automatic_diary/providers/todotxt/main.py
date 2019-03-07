@@ -13,11 +13,14 @@ regex_line = re.compile(
     r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'
     r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
 )
-regex_text = re.compile(r' t:\d{4}-\d{2}-\d{2}')
+regex_threshold = re.compile(r' t:\d{4}-\d{2}-\d{2}')
+regex_due = re.compile(r' (due|DUE):\d{4}-\d{2}-\d{2}')
 
 
 def _clean_text(s: str) -> str:
-    return regex_text.sub('', s)
+    s = regex_threshold.sub('', s)
+    s = regex_due.sub('', s)
+    return s
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
