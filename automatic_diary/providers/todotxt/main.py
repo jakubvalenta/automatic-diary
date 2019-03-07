@@ -9,6 +9,16 @@ from automatic_diary.model import Item
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
+regex_line = re.compile(
+    r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'
+    r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
+)
+regex_text = re.compile(r' t:\d{4}-\d{2}-\d{2}')
+
+
+def _clean_text(s: str) -> str:
+    return regex_text.sub('', s)
+
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     path = Path(config['path'])
@@ -16,19 +26,13 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     logger.info('Reading todo.txt file %s', path)
     with path.open() as f:
         for line in f:
-            m = re.match(
-                (
-                    r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'
-                    r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
-                ),
-                line,
-            )
+            m = regex_line.match(line)
             if not m:
                 continue
             datetime_ = datetime.datetime(
                 int(m.group('y')), int(m.group('m')), int(m.group('d'))
             )
-            text = m.group('text')
+            text = _clean_text(m.group('text'))
             yield Item.normalized(
                 datetime_=datetime_,
                 text=text,
