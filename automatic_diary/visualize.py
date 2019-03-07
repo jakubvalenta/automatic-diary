@@ -11,7 +11,7 @@ from functools import partial
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List
 
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 from automatic_diary.model import Item
 
@@ -124,7 +124,10 @@ def _matches_regex(s: str, regex: str) -> bool:
 def _render_template(
     package: List[str], output_html_path: str, highlight: str, **context
 ):
-    environment = Environment(loader=PackageLoader(*package[:-1]))
+    environment = Environment(
+        autoescape=select_autoescape(['html']),
+        loader=PackageLoader(*package[:-1]),
+    )
     environment.tests['highlighted'] = partial(_matches_regex, regex=highlight)
     template = environment.get_template('template.html')
     stream = template.stream(**context)
