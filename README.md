@@ -1,8 +1,6 @@
 # Automatic Diary
 
-*Locating myself in the stream of life*
-
-Automatic Diary is a program that compiles information about your life from
+Automatic Diary is a script that compiles information about your life from
 various digital sources into one easy to read stream.
 
 ![Automatic Diary screenshot](./automatic_diary_screenshot.png)
