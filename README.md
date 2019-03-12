@@ -1,7 +1,7 @@
 # Automatic Diary
 
-Automatic Diary is a script that compiles information about your life from
-various digital sources into one easy to read stream.
+Automatic Diary is a script that creates one timeline from various digital
+sources describing your life.
 
 ![Automatic Diary screenshot](./automatic_diary_screenshot.png)
 
@@ -29,21 +29,6 @@ Automatic Diary can be useful to those who:
 - [X] Custom diary notes (via plain-text and Org-mode files parsing)
 
 ## What is not collected
-
-Please be aware of the activities that are not collected by Automatic Diary:
-
-- emotions
-- conversations
-- uplanned activities (meeting someone, visiting a place)
-- house work
-- repairs
-- unpublished projects
-- reading books
-- health
-- sleep
-- what other people did
-
-## Future
 
 Automatic Diary could be extended to collect also the following data but right
 now it is considered low priority:
