@@ -60,26 +60,27 @@ $ make setup
 
 ## Configuration
 
-First you need to configure all the providers -- sources from which the data for
-your automatic diary stream will be read. The following providers are supported:
+First you need to configure all the providers (sources from which the data for
+your automatic diary timeline will be read). The following providers are
+supported:
 
-- caldav
-- csfd
-- csv
-- facebook
-- git
-- icalendar
-- maildir
-- orgmode
-- todotxt
-- twitter
-- txt
+- [caldav](#caldav)
+- [csfd](#csfd)
+- [csv](#csv)
+- [facebook](#facebook)
+- [git](#git)
+- [icalendar](#icalendar)
+- [maildir](#maildir)
+- [orgmode](#orgmode)
+- [todotxt](#todotxt)
+- [twitter](#twitter)
+- [txt](#txt)
 
 All providers are configured using a single `config.json` file. Use
 [config-sample.json](./config-sample.json) as a template for your own
 configuration.
 
-### CalDAV (caldav)
+### caldav
 
 - Input: CalDAV server
 
@@ -97,9 +98,9 @@ configuration.
     }
     ```
 
-### ČSFD (csfd)
+### csfd
 
-- Input: User profile on https://www.csfd.cz/ (film database website, something
+- Input: User profile on [ČSFD](https://www.csfd.cz/) (film database website, something
   like IMDB)
 
 - Output: Titles of films rated
@@ -113,7 +114,7 @@ configuration.
     }
     ```
 
-### CSV (csv)
+### csv
 
 - Input: CSV spreadsheet (.csv) file
 
@@ -130,7 +131,7 @@ configuration.
     }
     ```
 
-### Facebook (facebook)
+### facebook
 
 - Input: Downloaded Facebook archive
 
@@ -145,7 +146,7 @@ configuration.
     }
     ```
 
-### Git (git)
+### git
 
 - Input: Directory with checked-out Git repositories and an author name
 
@@ -160,9 +161,9 @@ configuration.
     }
     ```
 
-### iCalendar (icalendar)
+### icalendar
 
-- Input: Calendar events stored offline in the iCalendar (.ics) format
+- Input: Calendar events stored offline in iCalendar (.ics) files
 
 - Output: Names and locations of calendar events
 
@@ -180,7 +181,7 @@ configuration.
     Not that events from all the listed .ics files will be merged -- duplicate
     events removed.
 
-### Maildir (maildir)
+### maildir
 
 - Input: Emails stored offline in the Maildir format
 
@@ -195,9 +196,9 @@ configuration.
     }
     ```
 
-### Org-mode (orgmode)
+### orgmode
 
-- Input: Org-mode (.org) file in format:
+- Input: Emacs Org-mode (.org) file in format:
 
         * <2019-01-17 Thu>
 
@@ -225,9 +226,9 @@ configuration.
     }
     ```
 
-### Todo.txt (todotxt)
+### todotxt
 
-- Input: Todo.txt completed tasks file
+- Input: Todo.txt completed tasks file (done.txt)
 
 - Output: Texts of completed tasks
 
@@ -239,7 +240,7 @@ configuration.
     }
     ```
 
-### Twitter (twitter)
+### twitter
 
 - Input: Downloaded Twitter archive
 
@@ -253,7 +254,7 @@ configuration.
     }
     ```
 
-### Plain text file (txt)
+### txt
 
 - Input: Plain text (.txt) file in format:
 
