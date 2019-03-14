@@ -49,19 +49,28 @@ now it is considered low priority:
 ### Prerequisites
 
 - Python 3.7
-- Linux with libsecret available.
+- pipenv
+- libsecret (Linux keyring) -- required by the `caldav` provider
 
 ### Installation on Arch Linux
 
 ``` shell
-# pacman -S pipenv jq libsecret
+# pacman -S pipenv libsecret
+$ make setup
+```
+
+### Installation on Mac
+
+``` shell
+$ brew install python
+$ pip install pipenv
 $ make setup
 ```
 
 ## Configuration
 
-First you need to configure all the providers (sources from which the data for
-your automatic diary timeline will be read). The following providers are
+Before you run Automatic Diary, you need to configure all the providers (sources
+from which the data for your timeline will be read). The following providers are
 supported:
 
 - [caldav](#caldav)
@@ -315,7 +324,7 @@ Example CSV output:
 
 ``` csv
 2019-01-23T15:31:54-08:00,git,human-activities,model: Log exceptions while scanning
-2019-01-24T09:00:00+01:00,caldav,https://dav.mailbox.org/caldav/Y2FsOi8vMC8yNg,DHL Packstation
+2019-01-24T09:00:00+01:00,caldav,https://dav.mailbox.org/caldav/da39a3ee5e6b,DHL Packstation
 2019-01-25,todotxt,done.txt,Opravit Ondrovi kolo
 ```
 
