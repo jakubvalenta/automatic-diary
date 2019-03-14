@@ -46,26 +46,28 @@ now it is considered low priority:
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.7
-- pipenv
-- libsecret (Linux keyring) -- required by the `caldav` provider
-
-### Installation on Arch Linux
-
-``` shell
-# pacman -S pipenv libsecret
-$ make setup
-```
-
-### Installation on Mac
+### Mac
 
 ``` shell
 $ brew install python
 $ pip install pipenv
 $ make setup
 ```
+
+### Arch Linux
+
+``` shell
+# pacman -S pipenv libsecret
+$ make setup
+```
+
+### Other systems
+
+Install these dependencies manually:
+
+- Python 3.7
+- pipenv
+- libsecret (Linux keyring) -- required by the `caldav` provider
 
 ## Configuration
 
