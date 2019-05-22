@@ -129,7 +129,7 @@ def _render_template(
         loader=PackageLoader(*package[:-1]),
     )
     environment.tests['highlighted'] = partial(_matches_regex, regex=highlight)
-    template = environment.get_template('template.html')
+    template = environment.get_template(package[-1])
     stream = template.stream(**context)
     with Path(output_html_path).open('w') as f:
         f.writelines(stream)
