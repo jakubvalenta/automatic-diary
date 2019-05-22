@@ -69,6 +69,12 @@ Install these dependencies manually:
 - pipenv
 - libsecret (Linux keyring) -- required by the `caldav` provider
 
+Then run:
+
+``` shell
+$ make setup
+```
+
 ## Configuration
 
 Before you run Automatic Diary, you need to configure all the providers (sources
