@@ -89,6 +89,7 @@ supported:
 - [icalendar](#icalendar)
 - [maildir](#maildir)
 - [orgmode](#orgmode)
+- [orgmodelist](#orgmodelist)
 - [todotxt](#todotxt)
 - [twitter](#twitter)
 - [txt](#txt)
@@ -236,6 +237,31 @@ configuration.
     2019-01-17,bar
     2019-01-18,spam spam
     ```
+
+- Configuration:
+
+    ``` json
+    {
+        "path": "<path to the .org file>"
+    }
+    ```
+
+### orgmodelist
+
+- Input: Emacs Org-mode (.org) file in format:
+
+        - Lorem ipsum foo. <2019-01-17 Thu>
+        - bar <2019-01-18 Fri 11:30>
+        ...
+
+- Output: Example:
+
+    ``` csv
+    2019-01-17,Lorem ipsum foo.
+    2019-01-18T11:00:00+02:00,bar
+    ```
+
+- Configuration:
 
     ``` json
     {

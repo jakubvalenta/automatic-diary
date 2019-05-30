@@ -10,6 +10,7 @@ isort = "*"
 mypy = "*"
 
 [packages]
+PyOrgMode = {editable = true,git = "https://github.com/bjonnh/PyOrgMode"}
 beautifulsoup4 = "*"
 caldav = "*"
 dateparser = "*"
