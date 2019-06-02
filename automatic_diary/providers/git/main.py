@@ -13,6 +13,9 @@ provider = Path(__file__).parent.name
 
 
 def _find_git_repos(base_path: str) -> Iterator[str]:
+    if not os.path.isdir(base_path):
+        logger.warn(f'Directory {base_path} doesn\'t exist')
+        return
     for entry in os.scandir(base_path):
         if entry.name == '.git':
             yield base_path
