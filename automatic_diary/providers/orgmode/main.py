@@ -11,7 +11,7 @@ from automatic_diary.model import Item
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
-regex_heading = re.compile(r'^\* <(?P<date>.+)>$')
+regex_heading = re.compile(r'^\* (?P<todo>TODO )?<(?P<date>.+)>$')
 
 
 def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
@@ -24,10 +24,12 @@ def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
             m = regex_heading.match(line_clean)
             # Title line
             if m:
-                date_str = m.group('date')
-                current_datetime = datetime.datetime.strptime(
-                    date_str, '%Y-%m-%d %a'
-                )
+                if m.group('todo'):
+                    current_datetime = None
+                else:
+                    current_datetime = datetime.datetime.strptime(
+                        m.group('date'), '%Y-%m-%d %a'
+                    )
             # Paragraph line but not before first heading
             elif current_datetime:
                 current_paragraph.append(line_clean)
