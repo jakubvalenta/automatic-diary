@@ -58,7 +58,11 @@ def call_providers(
         except ModuleNotFoundError:
             logger.error('Provider %s not found', provider)
             continue
-        yield from module.main(config, no_cache)  # type: ignore
+        try:
+            yield from module.main(config, no_cache)  # type: ignore
+        except Exception as e:
+            logger.error('Error while calling provider %s', provider)
+            logger.error(e)
 
 
 def write_csv(items: Iterable[Item], path: str):
