@@ -9,7 +9,7 @@ import caldav
 
 from automatic_diary.model import Item
 from automatic_diary.providers.icalendar.main import parse_calendar
-from automatic_diary.shell import lookup_secret
+from automatic_diary.shell import search_secret
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
@@ -73,7 +73,11 @@ def _parse_events(
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     url = config['url']
     username = config['username']
-    password = lookup_secret(config['password_key'], config['password_val'])
+    password = search_secret(
+        config['password_key'],
+        config['password_val'],
+        config['password_label'],
+    )
     cache_dir = Path(config['cache_dir'])
     events_data = _download_events(
         url, username, password, cache_dir, no_cache

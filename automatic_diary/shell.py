@@ -1,5 +1,5 @@
 import subprocess
-from typing import List
+from typing import List, Optional
 
 
 def run_shell_cmd(cmd: List[str], **kwargs) -> str:
@@ -13,5 +13,16 @@ def run_shell_cmd(cmd: List[str], **kwargs) -> str:
     return completed_process.stdout
 
 
-def lookup_secret(key: str, val: str) -> str:
-    return run_shell_cmd(['secret-tool', 'lookup', key, val])
+def search_secret(key: str, val: str, label: str) -> Optional[str]:
+    out = run_shell_cmd(['secret-tool', 'search', key, val])
+    lines = out.splitlines()
+    for i, line in enumerate(lines):
+        if line == f'label = {label}':
+            if len(lines) == i + 1:
+                raise Exception('Invalid secret-tool output')
+            secret_line = lines[i + 1]
+            if not secret_line.startswith('secret = '):
+                raise Exception('Invalid secret-tool output')
+            start = len('secret = ')
+            return secret_line[start:]
+    return None
