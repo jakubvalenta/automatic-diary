@@ -23,7 +23,11 @@ def _find_git_repos(base_path: str) -> Iterator[str]:
     for entry in entries:
         if entry.name == '.git':
             yield base_path
-        if not entry.name.startswith('.') and entry.is_dir():
+        try:
+            is_normal_dir = not entry.name.startswith('.') and entry.is_dir()
+        except OSError:
+            return
+        if is_normal_dir:
             yield from _find_git_repos(entry.path)
 
 
