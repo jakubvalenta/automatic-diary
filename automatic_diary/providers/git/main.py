@@ -16,7 +16,11 @@ def _find_git_repos(base_path: str) -> Iterator[str]:
     if not os.path.isdir(base_path):
         logger.warn(f'Directory {base_path} doesn\'t exist')
         return
-    for entry in os.scandir(base_path):
+    try:
+        entries = os.scandir(base_path)
+    except PermissionError:
+        return
+    for entry in entries:
         if entry.name == '.git':
             yield base_path
         if not entry.name.startswith('.') and entry.is_dir():
