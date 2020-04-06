@@ -410,3 +410,8 @@ make lint
 ``` shell
 make help
 ```
+
+## Contributing
+
+__Feel free to remix this project__ under the terms of the GNU General Public
+License version 3 or later. See [COPYING](./COPYING) and [NOTICE](./NOTICE).
