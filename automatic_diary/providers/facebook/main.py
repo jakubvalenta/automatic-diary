@@ -3,7 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Optional
 
 import dateparser
 from bs4 import BeautifulSoup
@@ -31,7 +31,7 @@ filter_regex = re.compile(
 )
 
 
-def parse_datetime(s: str) -> datetime.datetime:
+def parse_datetime(s: str) -> Optional[datetime.datetime]:
     s = re.sub(r'\s(at|um)\s', ' ', s)
     s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
     s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
@@ -51,6 +51,9 @@ def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
             continue
         formatted_datetime = p.find(class_='meta').string
         datetime_ = parse_datetime(formatted_datetime)
+        if not datetime_:
+            logger.warn('Failed to parse date "%s"', formatted_datetime)
+            continue
         logger.info('Found status from %s: %s', datetime_, text)
         yield Status(datetime_=datetime_, text=text)
 

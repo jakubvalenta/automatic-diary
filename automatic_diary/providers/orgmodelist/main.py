@@ -30,7 +30,11 @@ def parse_orgmode_list(
         if not m:
             raise OrgModeError(f'Unknow format of line "{str_or_node}"')
         text = m.group('text')
-        datetime_ = dateparser.parse(m.group('date'))
+        date_str = m.group('date')
+        datetime_ = dateparser.parse(date_str)
+        if not datetime_:
+            logger.warn('Failed to parse date "%s"', date_str)
+            continue
         all_day = not any((datetime_.hour, datetime_.minute, datetime_.second))
         yield Item.normalized(
             datetime_=datetime_,
@@ -41,7 +45,7 @@ def parse_orgmode_list(
         )
 
 
-def read_org(path: str) -> PyOrgMode.OrgDataStructure:
+def read_org(path: Path) -> PyOrgMode.OrgDataStructure:
     org = PyOrgMode.OrgDataStructure()
     org.load_from_file(path)
     return org

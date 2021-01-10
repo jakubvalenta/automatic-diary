@@ -21,6 +21,3 @@ pystache = "*"
 python-dateutil = "*"
 requests = "*"
 tzlocal = "*"
-
-[requires]
-python_version = "3.8"

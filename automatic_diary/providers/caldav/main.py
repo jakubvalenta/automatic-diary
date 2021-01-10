@@ -78,6 +78,8 @@ def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
         config['password_val'],
         config['password_label'],
     )
+    if not password:
+        raise Exception('Password secret not found')
     cache_dir = Path(config['cache_dir'])
     events_data = _download_events(
         url, username, password, cache_dir, no_cache

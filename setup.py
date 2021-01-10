@@ -6,7 +6,7 @@ from automatic_diary import __title__
 
 setup(
     name='automatic-diary',
-    version='0.1.0',
+    version='0.1.1',
     description=__title__,
     long_description=(Path(__file__).parent / 'README.md').read_text(),
     url='https://lab.saloun.cz/jakub/automatic-diary',
@@ -21,6 +21,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     packages=find_packages(),
     install_requires=[
