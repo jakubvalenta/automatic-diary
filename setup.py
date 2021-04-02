@@ -6,10 +6,10 @@ from automatic_diary import __title__
 
 setup(
     name='automatic-diary',
-    version='0.1.1',
+    version='0.2.0',
     description=__title__,
     long_description=(Path(__file__).parent / 'README.md').read_text(),
-    url='https://lab.saloun.cz/jakub/automatic-diary',
+    url='https://github.com/jakubvalenta/automatic-diary',
     author='Jakub Valenta',
     author_email='jakub@jakubvalenta.cz',
     license='GNU General Public License v3 or later (GPLv3+)',
