@@ -11,7 +11,7 @@ from automatic_diary.model import Item
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
-regex_heading = re.compile(r'^\* (?P<todo>TODO )?<(?P<date>.+)>$')
+regex_heading = re.compile(r'^\* (?P<todo>TODO )?[<\[](?P<date>.+)[>\]]$')
 
 
 def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
