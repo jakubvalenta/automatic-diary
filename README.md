@@ -65,7 +65,7 @@ $ make setup
 
 Install these dependencies manually:
 
-- Python 3.7
+- Python >= 3.7
 - pipenv
 - libsecret (Linux keyring) -- required by the `caldav` provider
 
@@ -339,13 +339,13 @@ configuration.
 The basic output of Automatic Diary is a CSV file. Generate it by running:
 
 ``` shell
-./automatic-diary <config path> <output csv path>
+$ ./automatic-diary <config path> <output csv path>
 ```
 
 Example:
 
 ``` shell
-./automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
+$ ./automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
 ```
 
 The CSV output is in format:
@@ -365,7 +365,7 @@ Example CSV output:
 See the help for all command line options:
 
 ``` shell
-./automatic-diary --help
+$ ./automatic-diary --help
 ```
 
 ### Visualization
@@ -375,19 +375,19 @@ like a calendar. See the screenshot above. Generate this HTML document by
 running:
 
 ``` shell
-./automatic-diary-visualize <csv path> <output html path>
+$ ./automatic-diary-visualize <csv path> <output html path>
 ```
 
 Example:
 
 ``` shell
-./automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
+$ ./automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
 ```
 
 See the help for all command line options:
 
 ``` shell
-./automatic-diary-visualize --help
+$ ./automatic-diary-visualize --help
 ```
 
 ## Development
@@ -395,20 +395,20 @@ See the help for all command line options:
 ### Installation
 
 ``` shell
-make setup-dev
+$ make setup-dev
 ```
 
 ### Testing and linting
 
 ``` shell
-make test
-make lint
+$ make test
+$ make lint
 ```
 
 ### Help
 
 ``` shell
-make help
+$ make help
 ```
 
 ## Contributing
