@@ -24,6 +24,7 @@ class TestOrgmode(TestCase):
 
 - Lorem ipsum foo. <2019-01-17 Thu>
 - bar <2019-01-18 Fri 11:30>
+- spam [2021-05-13 Thu]
 '''
         )
         subprovider = 'my_provider'
@@ -42,6 +43,13 @@ class TestOrgmode(TestCase):
                 provider='orgmodelist',
                 subprovider=subprovider,
                 all_day=False,
+            ),
+            Item.normalized(
+                datetime_=datetime.datetime(2021, 5, 13),
+                text='spam',
+                provider='orgmodelist',
+                subprovider=subprovider,
+                all_day=True,
             ),
         ]
         self.assertListEqual(result, expected)

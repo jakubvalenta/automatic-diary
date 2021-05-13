@@ -11,7 +11,7 @@ from automatic_diary.model import Item
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
-regex_item = re.compile(r'^- (?P<text>.+) <(?P<date>.+)>\s$')
+regex_item = re.compile(r'^- (?P<text>.+) [<\[](?P<date>.+)[>\]]\s$')
 
 
 class OrgModeError(Exception):
