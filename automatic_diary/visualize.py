@@ -7,7 +7,6 @@ import statistics
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
-from functools import partial
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List
 
@@ -128,7 +127,7 @@ def _render_template(
         autoescape=select_autoescape(['html']),
         loader=PackageLoader(*package[:-1]),
     )
-    environment.tests['highlighted'] = partial(_matches_regex, regex=highlight)
+    environment.tests['highlighted'] = lambda s: _matches_regex(s, highlight)
     template = environment.get_template(package[-1])
     stream = template.stream(**context)
     with Path(output_html_path).open('w') as f:
