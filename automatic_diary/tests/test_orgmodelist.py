@@ -1,26 +1,16 @@
 import datetime
-import tempfile
 from unittest import TestCase
 
-from PyOrgMode import PyOrgMode
+import orgparse
 
 from automatic_diary.model import Item
 from automatic_diary.providers.orgmodelist.main import parse_orgmode_list
 
 
-def create_org(content: bytes):
-    with tempfile.NamedTemporaryFile() as f:
-        f.write(content)
-        f.flush()
-        org = PyOrgMode.OrgDataStructure()
-        org.load_from_file(f.name)
-    return org
-
-
 class TestOrgmode(TestCase):
     def test_parse_orgmode_list(self):
-        org = create_org(
-            b'''#+STARTUP: showall
+        org = orgparse.loads(
+            '''#+STARTUP: showall
 
 - Lorem ipsum foo. <2019-01-17 Thu>
 - bar <2019-01-18 Fri 11:30>

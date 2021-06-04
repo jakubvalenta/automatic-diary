@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import Iterator
 
 import dateparser
-from PyOrgMode import PyOrgMode
+import orgparse
 
 from automatic_diary.model import Item
 
 logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
-regex_item = re.compile(r'^- (?P<text>.+) [<\[](?P<date>.+)[>\]]\s$')
+regex_item = re.compile(r'^- (?P<text>.+) [<\[](?P<date>.+)[>\]]\s*$')
 
 
 class OrgModeError(Exception):
@@ -19,16 +19,14 @@ class OrgModeError(Exception):
 
 
 def parse_orgmode_list(
-    org: PyOrgMode.OrgDataStructure, subprovider: str
+    org: orgparse.OrgNode, subprovider: str
 ) -> Iterator[Item]:
-    for str_or_node in org.root.content:
-        if isinstance(str_or_node, PyOrgMode.OrgNode.Element):
-            raise OrgModeError('Conversion to CSV doesn\'t support sections')
-        if str_or_node == '\n' or str_or_node.startswith('#'):
+    for line in org.root.body.splitlines():
+        if not line or line.startswith('#'):
             continue
-        m = regex_item.search(str_or_node)
+        m = regex_item.search(line)
         if not m:
-            raise OrgModeError(f'Unknow format of line "{str_or_node}"')
+            raise OrgModeError(f'Unknow format of line "{line}"')
         text = m.group('text')
         date_str = m.group('date')
         datetime_ = dateparser.parse(date_str)
@@ -45,15 +43,9 @@ def parse_orgmode_list(
         )
 
 
-def read_org(path: Path) -> PyOrgMode.OrgDataStructure:
-    org = PyOrgMode.OrgDataStructure()
-    org.load_from_file(path)
-    return org
-
-
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
     path = Path(config['path'])
     subprovider = path.name
     logger.info('Reading Org-mode file %s', path)
-    org = read_org(path)
+    org = orgparse.load(path)
     yield from parse_orgmode_list(org, subprovider)
