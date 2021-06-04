@@ -6,7 +6,7 @@ from automatic_diary import __title__
 
 setup(
     name='automatic-diary',
-    version='0.2.0',
+    version='0.3.0',
     description=__title__,
     long_description=(Path(__file__).parent / 'README.md').read_text(),
     url='https://github.com/jakubvalenta/automatic-diary',
