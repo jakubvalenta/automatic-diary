@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Iterable, Iterator, List, Optional
 
 import ics
-import ics.parse
 
 from automatic_diary.model import Item
 
@@ -24,6 +23,10 @@ def quopri_decode(s: Optional[str]) -> str:
     return s
 
 
+class ICalendarError(Exception):
+    pass
+
+
 @dataclass
 class Event:
     _name: Optional[str]
@@ -33,11 +36,13 @@ class Event:
 
     @classmethod
     def from_ics_event(cls, event: ics.Event):
-        # TODO: multiple days
+        # TODO Support events that span multiple days.
+        if not event.begin:
+            raise ICalendarError('Event is missing begin time')
         return cls(
-            _name=event.name,
+            _name=event.summary,
             _location=event.location,
-            begin=event.begin.datetime,
+            begin=event.begin,
             all_day=event.all_day,
         )
 
@@ -64,9 +69,14 @@ def _clean_ics_text(lines: Iterable[str]) -> Iterator[str]:
 
 
 def parse_calendar(lines: Iterable[str]) -> Iterator[Event]:
-    calendar = ics.Calendar(_clean_ics_text(lines))
+    text = '\n'.join(_clean_ics_text(lines))
+    calendar = ics.Calendar(text)
     for event in calendar.events:
-        yield Event.from_ics_event(event)
+        try:
+            yield Event.from_ics_event(event)
+        except ICalendarError as e:
+            logger.error('Error while parsing ICalendar Event')
+            logger.error(e)
 
 
 def _read_calendar(path: Path) -> Iterator[Event]:

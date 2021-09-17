@@ -6,12 +6,8 @@ run:  ## Run automatic diary
 	"./$(_executable)"
 
 .PHONY: setup
-setup:  ## Create Pipenv virtual environment and install dependencies.
+setup:  ## Create virtual environment and install dependencies
 	poetry install
-
-.PHONY: setup-dev
-setup-dev:  ## Install development dependencies
-	pipenv install --dev
 
 .PHONY: test
 test:  ## Run unit tests

@@ -50,14 +50,14 @@ now it is considered low priority:
 
 ``` shell
 $ brew install python
-$ pip install pipenv
+$ pip install poetry
 $ make setup
 ```
 
 ### Arch Linux
 
 ``` shell
-# pacman -S pipenv libsecret
+# pacman -S python-poetry libsecret
 $ make setup
 ```
 
@@ -66,7 +66,7 @@ $ make setup
 Install these dependencies manually:
 
 - Python >= 3.7
-- pipenv
+- poetry
 - libsecret (Linux keyring) -- required by the `caldav` provider
 
 Then run:
@@ -391,12 +391,6 @@ $ ./automatic-diary-visualize --help
 ```
 
 ## Development
-
-### Installation
-
-``` shell
-$ make setup-dev
-```
 
 ### Testing and linting
 
