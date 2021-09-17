@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # https://github.com/python-poetry/poetry/issues/2179
-start_dir=$(pwd)
+
+set -euo pipefail
+
 project_dir=$(dirname "$(readlink -f "$0")")
-cd "$project_dir" || exit 1
-poetry run sh -c "cd '$start_dir' && python3 -m automatic_diary $@"
+pushd "$project_dir" > /dev/null
+python_path="$(poetry env info -p)/bin/python"
+popd > /dev/null
+"$python_path" -m automatic_diary "$@"
