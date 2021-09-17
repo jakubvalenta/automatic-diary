@@ -1,7 +1,7 @@
 #!/bin/bash
 
+# https://github.com/python-poetry/poetry/issues/2179
+start_dir=$(pwd)
 project_dir=$(dirname "$(readlink -f "$0")")
-
-PIPENV_PIPFILE="$project_dir/Pipfile" \
-PYTHONPATH="$project_dir" \
-pipenv run python3 -m automatic_diary "$@"
+cd "$project_dir" || exit 1
+poetry run sh -c "cd '$start_dir' && python3 -m automatic_diary $@"

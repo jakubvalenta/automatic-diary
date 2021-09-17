@@ -7,8 +7,7 @@ run:  ## Run automatic diary
 
 .PHONY: setup
 setup:  ## Create Pipenv virtual environment and install dependencies.
-	pipenv --three --site-packages
-	pipenv install
+	poetry install
 
 .PHONY: setup-dev
 setup-dev:  ## Install development dependencies
@@ -16,13 +15,13 @@ setup-dev:  ## Install development dependencies
 
 .PHONY: test
 test:  ## Run unit tests
-	pipenv run python -m unittest
+	poetry run python -m unittest
 
 .PHONY: lint
 lint:  ## Run linting
-	pipenv run flake8 $(_python_pkg)
-	pipenv run mypy $(_python_pkg) --ignore-missing-imports
-	pipenv run isort -c $(_python_pkg)
+	poetry run flake8 $(_python_pkg)
+	poetry run mypy $(_python_pkg) --ignore-missing-imports
+	poetry run isort -c $(_python_pkg)
 
 .PHONY: tox
 tox:  ## Test with tox
@@ -34,7 +33,7 @@ reformat:  ## Reformat Python code using Black
 
 .PHONY: python-shell
 python-shell:  ## Run Python shell with all dependencies installed
-	pipenv run ipython --no-banner --no-confirm-exit
+	poetry run ipython --no-banner --no-confirm-exit
 
 .PHONY: help
 help:
