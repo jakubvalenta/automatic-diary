@@ -80,7 +80,9 @@ def write_csv(items: Iterable[Item], path: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__title__)
+    parser = argparse.ArgumentParser(
+        prog='automatic-diary', description=__title__
+    )
     parser.add_argument('config_path', help='Configuration file path')
     parser.add_argument('output_csv_path', help='Output CSV file path')
     parser.add_argument(
