@@ -31,6 +31,14 @@
         }
     },
     {
+        "provider": "trakt",
+        "config": {
+            "key_id": "<Trakt.tv app Key ID>",
+            "key_secret": "<Trakt.tv app Secret>",
+            "app_id": "<Trakt.tv app ID (numeric)>"
+        }
+    },
+    {
         "provider": "maildir",
         "config": {
             "received_pathname": "/home/jane/mail/folders/Archives/subfolders/20*/cur/*/*",
