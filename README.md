@@ -25,7 +25,7 @@ Automatic Diary can be useful to those who:
 - [X] Facebook and Twitter posts (via Facebook/Twitter data archive parsing)
 - [X] Software development work (via Git repository log)
 - [X] Completed todo list items (via todo.txt parsing)
-- [X] Films watched (via ČSFD website parsing)
+- [X] Films watched (via ČSFD website parsing and Trakt.tv)
 - [X] Custom diary notes (via plain-text and Org-mode files parsing)
 
 ## What is not collected
@@ -91,6 +91,7 @@ supported:
 - [orgmode](#orgmode)
 - [orgmodelist](#orgmodelist)
 - [todotxt](#todotxt)
+- [trakt](#trakt)
 - [twitter](#twitter)
 - [txt](#txt)
 
@@ -282,6 +283,24 @@ configuration.
         "path": "<done.txt file path>"
     }
     ```
+
+### trakt
+
+- Input: [Manually create an application within Trakt.tv](https://trakt.tv/oauth/applications/new). Manual login with OAuth when running this provider. A recommended `Redirect URI` is `urn:ietf:wg:oauth:2.0:oob`
+
+- Output: Texts of watched films and shows
+
+- Configuration
+
+    ``` json
+    {
+        "key_id": "<Trakt.tv app Key ID>",
+        "key_secret": "<Trakt.tv app Secret>",
+        "app_id": "<Trakt.tv app ID (numeric)>"
+    }
+    ```
+
+
 
 ### twitter
 
