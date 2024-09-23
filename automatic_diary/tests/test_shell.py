@@ -24,9 +24,7 @@ attribute.eds-origin = evolution-data-server
 
 
 class TestShell(TestCase):
-    @patch(
-        'automatic_diary.shell.run_shell_cmd', return_value=MOCK_RUN_CMD_OUTPUT
-    )
+    @patch('automatic_diary.shell.run_shell_cmd', return_value=MOCK_RUN_CMD_OUTPUT)
     def test_search_secret(self, mock_method):
         self.assertEqual(
             search_secret(key='foo', val='bar', label='first label'),
@@ -36,6 +34,4 @@ class TestShell(TestCase):
             search_secret(key='foo', val='bar', label='second label'),
             'second secret',
         )
-        self.assertIsNone(
-            search_secret(key='foo', val='bar', label='nonexistent label')
-        )
+        self.assertIsNone(search_secret(key='foo', val='bar', label='nonexistent label'))

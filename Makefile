@@ -1,9 +1,4 @@
 _python_pkg := automatic_diary
-_executable := automatic-diary
-
-.PHONY: run
-run:  ## Run automatic diary
-	"./$(_executable)"
 
 .PHONY: setup
 setup:  ## Create virtual environment and install dependencies
@@ -25,7 +20,7 @@ tox:  ## Test with tox
 
 .PHONY: reformat
 reformat:  ## Reformat Python code using Black
-	black -l 79 --skip-string-normalization $(_python_pkg)
+	black -l 100 --skip-string-normalization $(_python_pkg)
 
 .PHONY: python-shell
 python-shell:  ## Run Python shell with all dependencies installed

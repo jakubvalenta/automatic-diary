@@ -1,1 +1,1 @@
-__title__ = 'Automatic Diary'
+__title__ = "Automatic Diary"

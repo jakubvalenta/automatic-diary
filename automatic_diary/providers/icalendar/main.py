@@ -3,7 +3,7 @@ import logging
 import quopri
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional
+from typing import Iterable, Iterator, Optional
 
 import ics
 
@@ -15,7 +15,7 @@ provider = Path(__file__).parent.name
 
 def quopri_decode(s: Optional[str]) -> str:
     if not s:
-        return ''
+        return ""
     try:
         return quopri.decodestring(s.encode()).decode()
     except ValueError:
@@ -38,7 +38,7 @@ class Event:
     def from_ics_event(cls, event: ics.Event):
         # TODO Support events that span multiple days.
         if not event.begin:
-            raise ICalendarError('Event is missing begin time')
+            raise ICalendarError("Event is missing begin time")
         return cls(
             _name=event.summary,
             _location=event.location,
@@ -51,14 +51,14 @@ class Event:
         name = quopri_decode(self._name)
         location = quopri_decode(self._location)
         if location:
-            return f'{name} ({location})'
+            return f"{name} ({location})"
         return name
 
 
 def _clean_ics_text(lines: Iterable[str]) -> Iterator[str]:
-    current_line = ''
+    current_line = ""
     for line in lines:
-        if line.startswith('='):
+        if line.startswith("="):
             current_line += line
             continue
         else:
@@ -69,25 +69,25 @@ def _clean_ics_text(lines: Iterable[str]) -> Iterator[str]:
 
 
 def parse_calendar(lines: Iterable[str]) -> Iterator[Event]:
-    text = '\n'.join(_clean_ics_text(lines))
+    text = "\n".join(_clean_ics_text(lines))
     calendar = ics.Calendar(text)
     for event in calendar.events:
         try:
             yield Event.from_ics_event(event)
         except ICalendarError as e:
-            logger.error('Error while parsing ICalendar Event')
+            logger.error("Error while parsing ICalendar Event")
             logger.error(e)
 
 
 def _read_calendar(path: Path) -> Iterator[Event]:
-    logger.info('Reading calendar %s', path)
+    logger.info("Reading calendar %s", path)
     with path.open() as f:
         yield from parse_calendar(f)
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
-    paths = config['paths']
-    unique_events: List[Event] = []
+    paths = config["paths"]
+    unique_events: list[Event] = []
     for path_str in paths:
         path = Path(path_str)
         subprovider = path.name

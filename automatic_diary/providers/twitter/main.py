@@ -15,9 +15,7 @@ def _parse_tweets_file(path: Path) -> Iterator[Item]:
         f.readline()  # Skip first line, which is not JSOn
         tweets_data = json.load(f)
     for tweet_data in tweets_data:
-        datetime_ = datetime.datetime.strptime(
-            tweet_data['created_at'], '%Y-%m-%d %H:%M:%S %z'
-        )
+        datetime_ = datetime.datetime.strptime(tweet_data['created_at'], '%Y-%m-%d %H:%M:%S %z')
         text = tweet_data['text']
         screen_name = tweet_data['user']['screen_name']
         yield Item.normalized(

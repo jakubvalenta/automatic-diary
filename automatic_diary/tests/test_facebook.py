@@ -12,15 +12,11 @@ class TestFacebook(TestCase):
     @data(
         (
             'Wednesday, December 31, 2014 at 4:17am UTC+01',
-            datetime.datetime(
-                2014, 12, 31, 4, 17, tzinfo=dateutil.tz.gettz('Europe/Prague')
-            ),
+            datetime.datetime(2014, 12, 31, 4, 17, tzinfo=dateutil.tz.gettz('Europe/Prague')),
         ),
         (
             'Dienstag, 30. Januar 2018 um 13:05 UTC+01',
-            datetime.datetime(
-                2018, 1, 30, 13, 5, tzinfo=dateutil.tz.gettz('Europe/Berlin')
-            ),
+            datetime.datetime(2018, 1, 30, 13, 5, tzinfo=dateutil.tz.gettz('Europe/Berlin')),
         ),
     )
     @unpack

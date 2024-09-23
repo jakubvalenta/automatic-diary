@@ -2,11 +2,10 @@ import datetime
 import re
 from dataclasses import dataclass
 from functools import total_ordering
-from typing import List, Tuple
 
 import dateutil.tz
 
-default_tz = dateutil.tz.gettz('Europe/Prague')
+default_tz = dateutil.tz.gettz("Europe/Prague")
 
 
 @total_ordering
@@ -19,9 +18,7 @@ class Item:
     all_day: bool = False
 
     @classmethod
-    def normalized(
-        cls, datetime_: datetime.datetime, *args, **kwargs
-    ) -> 'Item':
+    def normalized(cls, datetime_: datetime.datetime, *args, **kwargs) -> "Item":
         if not datetime_.tzinfo:
             datetime_ = datetime_.replace(tzinfo=default_tz)
         return cls(datetime_, *args, **kwargs)
@@ -32,7 +29,7 @@ class Item:
 
     @property
     def clean_text(self) -> str:
-        return re.sub(r'\s+', ' ', self.text).strip()
+        return re.sub(r"\s+", " ", self.text).strip()
 
     @property
     def formatted_datetime(self) -> str:
@@ -40,10 +37,10 @@ class Item:
             return self.datetime_.date().isoformat()
         return self.datetime_.isoformat()
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Item") -> bool:
         return self.datetime_ < other.datetime_
 
-    def astuple(self) -> Tuple[str, str, str, str]:
+    def astuple(self) -> tuple[str, str, str, str]:
         return (
             self.formatted_datetime,
             self.provider,
@@ -52,7 +49,7 @@ class Item:
         )
 
     @classmethod
-    def from_tuple(cls, row: List[str]) -> 'Item':
+    def from_tuple(cls, row: list[str]) -> "Item":
         formatted_datetime, provider, subprovider, text = row
         datetime_ = datetime.datetime.fromisoformat(formatted_datetime)
         return cls.normalized(

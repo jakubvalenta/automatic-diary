@@ -51,21 +51,21 @@ now it is considered low priority:
 ``` shell
 $ brew install python
 $ pip install poetry
-$ make setup
+$ pip install --user --upgrade .
 ```
 
 ### Arch Linux
 
 ``` shell
 # pacman -S python-poetry libsecret
-$ make setup
+$ pip install --user --upgrade .
 ```
 
 ### Other systems
 
 Install these dependencies manually:
 
-- Python >= 3.7
+- Python >= 3.9
 - poetry
 - libsecret (Linux keyring) -- required by the `caldav` provider
 
@@ -358,13 +358,13 @@ configuration.
 The basic output of Automatic Diary is a CSV file. Generate it by running:
 
 ``` shell
-$ ./automatic-diary <config path> <output csv path>
+$ automatic-diary <config path> <output csv path>
 ```
 
 Example:
 
 ``` shell
-$ ./automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
+$ automatic-diary ~/.config/automatic-diary/config.json ~/Desktop/automatic_diary.csv
 ```
 
 The CSV output is in format:
@@ -384,7 +384,7 @@ Example CSV output:
 See the help for all command line options:
 
 ``` shell
-$ ./automatic-diary --help
+$ automatic-diary --help
 ```
 
 ### Visualization
@@ -394,22 +394,28 @@ like a calendar. See the screenshot above. Generate this HTML document by
 running:
 
 ``` shell
-$ ./automatic-diary-visualize <csv path> <output html path>
+$ automatic-diary-visualize <csv path> <output html path>
 ```
 
 Example:
 
 ``` shell
-$ ./automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
+$ automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
 ```
 
 See the help for all command line options:
 
 ``` shell
-$ ./automatic-diary-visualize --help
+$ automatic-diary-visualize --help
 ```
 
 ## Development
+
+### Installation
+
+``` shell
+$ make setup
+```
 
 ### Testing and linting
 

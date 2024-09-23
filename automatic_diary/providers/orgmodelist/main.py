@@ -18,9 +18,7 @@ class OrgModeError(Exception):
     pass
 
 
-def parse_orgmode_list(
-    org: orgparse.OrgNode, subprovider: str
-) -> Iterator[Item]:
+def parse_orgmode_list(org: orgparse.OrgNode, subprovider: str) -> Iterator[Item]:
     for line in org.root.body.splitlines():
         if not line or line.startswith('#'):
             continue

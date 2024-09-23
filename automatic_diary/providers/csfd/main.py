@@ -57,9 +57,7 @@ def _download_all_ratings_pages(
     logger.info('Found %d pages', last_page_num)
     yield soup
     for page_no in range(2, last_page_num + 1):
-        html = _download_ratings_page(
-            profile_url, cache_dir, no_cache, page_no
-        )
+        html = _download_ratings_page(profile_url, cache_dir, no_cache, page_no)
         soup = BeautifulSoup(html, 'html.parser')
         yield soup
 
@@ -67,16 +65,12 @@ def _download_all_ratings_pages(
 def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
     for tr in soup.select('.profile-content .ui-table-list tbody tr'):
         title = tr.find(class_='film').string
-        datetime_ = datetime.datetime.strptime(
-            tr.find_all('td')[-1].string, '%d.%m.%Y'
-        )
+        datetime_ = datetime.datetime.strptime(tr.find_all('td')[-1].string, '%d.%m.%Y')
         logger.info('Found film %s rated on %s', title, datetime_.date())
         yield Film(title=title, datetime_=datetime_)
 
 
-def _parse_ratings_pages(
-    soups: Iterable[BeautifulSoup], subprovider: str
-) -> Iterator[Item]:
+def _parse_ratings_pages(soups: Iterable[BeautifulSoup], subprovider: str) -> Iterator[Item]:
     for soup in soups:
         for film in _parse_ratings_page(soup):
             yield Item.normalized(

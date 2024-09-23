@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 regex_line = re.compile(
-    r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'
-    r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
+    r'^x (?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})' r'( \([A-F]\))? \d{4}-\d{2}-\d{2} (?P<text>.+)\s*$'
 )
 regex_threshold = re.compile(r' t:\d{4}-\d{2}-\d{2}')
 regex_due = re.compile(r' (due|DUE):\d{4}-\d{2}-\d{2}')
@@ -32,9 +31,7 @@ def main(config: dict, *args, **kwargs) -> Iterator[Item]:
             m = regex_line.match(line)
             if not m:
                 continue
-            datetime_ = datetime.datetime(
-                int(m.group('y')), int(m.group('m')), int(m.group('d'))
-            )
+            datetime_ = datetime.datetime(int(m.group('y')), int(m.group('m')), int(m.group('d')))
             text = _clean_text(m.group('text'))
             yield Item.normalized(
                 datetime_=datetime_,
