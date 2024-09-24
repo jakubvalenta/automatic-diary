@@ -6,7 +6,7 @@ setup:  ## Create virtual environment and install dependencies
 
 .PHONY: test
 test:  ## Run unit tests
-	poetry run python -m unittest
+	poetry run pytest $(_python_pkg)
 
 .PHONY: lint
 lint:  ## Run linting

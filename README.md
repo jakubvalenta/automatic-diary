@@ -72,7 +72,7 @@ Install these dependencies manually:
 Then run:
 
 ``` shell
-$ make setup
+$ pip install --user --upgrade .
 ```
 
 ## Configuration
@@ -219,17 +219,19 @@ configuration.
 
 - Input: Emacs Org-mode (.org) file in format:
 
-        * <2019-01-17 Thu>
+    ``` org
+    * <2019-01-17 Thu>
 
-        Lorem ipsum
-        foo.
+    Lorem ipsum
+    foo.
 
-        bar
+    bar
 
-        * <2019-01-18 Fri>
+    * <2019-01-18 Fri>
 
-        spam spam
-        ...
+    spam spam
+    ...
+    ```
 
 - Output: Example:
 

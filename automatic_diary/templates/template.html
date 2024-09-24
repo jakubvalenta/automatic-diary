@@ -1,221 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>Automatic Diary Visualization</title>
-        <style>
-         body {
-             min-width: 1800px;
-             margin: 1em;
-             font-family: B612;
-             color: #444;
-         }
-         h2 {
-             text-align: right;
-             font-weight: normal;
-             font-size: 12pt;
-             margin: 0;
-         }
-         .table {
-             display: flex;
-             flex-direction: column;
-         }
-         .tr {
-             display: flex;
-             position: relative;
-         }
-         .td,
-         .th {
-             width: 14.28%;
-             padding: 0.25em;
-             box-sizing: border-box;
-         }
-         .td {
-             border-bottom: 1px solid #ddd;
-             border-right: 1px solid #ddd;
-             overflow: hidden;
-         }
-         .td:nth-child(5) {
-             border-right-color: #444;
-         }
-         .td:first-child {
-             border-left: 1px solid #ddd;
-         }
-         .tr:first-child .td {
-             border-top: 1px solid #ddd;
-         }
-         .even {
-             background: #fcfcfc;
-         }
-         .th {
-             text-align: center;
-         }
-         .cell {
-             display: flex;
-             flex-direction: column;
-             height: 100%;
-             min-height: 200px;
-         }
-         .content {
-             flex-grow: 1;
-         }
-         .date {
-             text-align: center;
-             font-size: 10pt;
-             color: #bbb;
-         }
-         .item {
-             font-size: 10pt;
-             margin: 0.25em 0;
-         }
-         .subprovider {
-             display: none;
-         }
-         .lines {
-             position: absolute;
-             left: 1em;
-             right: 1em;
-             top: 0;
-             height: 100%;
-         }
-         .line {
-             position: absolute;
-             left: 0;
-             top: 0;
-             width: 0.5em;
-             height: 100%;
-             opacity: 0.2;
-         }
-         .csfd {
-             color: #e6194b;
-         }
-         .line-csfd {
-             background: #e6194b;
-             margin-left: -0.8em;
-         }
-         .caldav,
-         .icalendar {
-             background: #4363d8dd;
-             color: #fff;
-         }
-         .todotxt {
-             padding-bottom: 0.2em;
-         }
-         .todotxt .text {
-             border-bottom: 0.2em solid #ffe119;
-         }
-         .line-todotxt {
-             background: #ffe119;
-             margin-left: -1.6em;
-         }
-         .trakt {
-             color: #e6194b;
-         }
-         .trakt .subprovider {
-             display: inline;
-             padding-right: 0.5em;
-         }
-         .line-trakt {
-             background: #e6194b;
-             margin-left: -0.8em;
-         }
-         .git {
-             font-family: monospace;
-             font-size: 9pt;
-             display: flex;
-         }
-         .git .subprovider {
-             display: block;
-             white-space: nowrap;
-             padding-right: 0.5em;
-         }
-         .git .text {
-             display: block;
-             color: #666;
-         }
-         .line-git {
-             background: #666;
-         }
-         .facebook,
-         .twitter {
-             margin-top: 0.5em;
-             margin-bottom: 0.5em;
-             padding-left: 0.1em;
-             padding-right: 0.1em;
-             border-left: 0.5em solid #f032e633;
-             border-right: 0.5em solid #f032e633;
-             font-style: italic;
-         }
-         .maildir {
-             padding-left: 1.5em;
-         }
-         .maildir::before {
-             display: block;
-             float: left;
-             content: '\1F4E7';
-             width: 1.5em;
-             margin-left: -1.5em;
-         }
-         .csv {
-             padding-left: 1.5em;
-             color: #008080;
-         }
-         .csv::before {
-             display: block;
-             float: left;
-             content: '\26BD';
-             width: 1.5em;
-             margin-left: -1.5em;
-         }
-         .line-csv {
-             background: #008080;
-             margin-left: -2.4em;
-         }
-         .highlight {
-             background: #000;
-             color: #fff;
-         }
-        </style>
-    </head>
-    <body>
-        <div class="table">
-            <div class="tr">
-                {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
-                <div class="th">{{ weekday }}</div>
-                {% endfor %}
-            </div>
-            <div class="tbody">
-                {% for week in weeks %}
-                <div class="tr">
-                    {% for day in week %}
-                    <div class="td{% if day.even %} even{% endif %}">
-                        <div class="cell">
-                            <div class="content">
-                                <h2 title="{{ day.date.isoformat() }}">{{ day.date.day }}</h2>
-                                {% for item in day.items %}
-                                <p class="item {{ item.provider }}{% if item.text is highlighted %} highlight{% endif %}">
-                                    <span class="subprovider">{{ item.subprovider }}</span>
-                                    <span class="text">{{ item.text }}</span>
-                                </p>
-                                {% endfor %}
-                            </div>
-                            <div class="date">{{ day.date.strftime('%b %Y') }}</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    <div class="lines">
-                        {% for provider, perc in stats[loop.index0].items() %}
-                        <div class="line line-{{ provider }}" style="left:{{ perc }}%"></div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-            <div class="tr">
-                {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
-                <div class="th">{{ weekday }}</div>
-                {% endfor %}
-            </div>
+  <head>
+    <meta charset="utf-8" />
+    <title>Automatic Diary {{ year }}</title>
+    <style>
+      body {
+        min-width: 1800px;
+        margin: 1em;
+        font-family: B612;
+        color: #444;
+      }
+      h2 {
+        text-align: right;
+        font-weight: normal;
+        font-size: 12pt;
+        margin: 0;
+      }
+      .table {
+        display: flex;
+        flex-direction: column;
+      }
+      .tr {
+        display: flex;
+        position: relative;
+      }
+      .td,
+      .th {
+        width: 14.28%;
+        padding: 0.25em;
+        box-sizing: border-box;
+      }
+      .td {
+        border-bottom: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        overflow: hidden;
+      }
+      .td:nth-child(5) {
+        border-right-color: #444;
+      }
+      .td:first-child {
+        border-left: 1px solid #ddd;
+      }
+      .tr:first-child .td {
+        border-top: 1px solid #ddd;
+      }
+      .even {
+        background: #fcfcfc;
+      }
+      .th {
+        text-align: center;
+      }
+      .cell {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 200px;
+      }
+      .content {
+        flex-grow: 1;
+      }
+      .date {
+        text-align: center;
+        font-size: 10pt;
+        color: #bbb;
+      }
+      .item {
+        font-size: 10pt;
+        margin: 0.25em 0;
+      }
+      .subprovider {
+        display: none;
+      }
+      .lines {
+        position: absolute;
+        left: 1em;
+        right: 1em;
+        top: 0;
+        height: 100%;
+      }
+      .line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0.5em;
+        height: 100%;
+        opacity: 0.2;
+      }
+      .csfd {
+        color: #e6194b;
+      }
+      .line-csfd {
+        background: #e6194b;
+        margin-left: -0.8em;
+      }
+      .caldav,
+      .icalendar {
+        background: #4363d8dd;
+        color: #fff;
+      }
+      .todotxt {
+        padding-bottom: 0.2em;
+      }
+      .todotxt .text {
+        border-bottom: 0.2em solid #ffe119;
+      }
+      .line-todotxt {
+        background: #ffe119;
+        margin-left: -1.6em;
+      }
+      .trakt {
+        color: #e6194b;
+      }
+      .trakt .subprovider {
+        display: inline;
+        padding-right: 0.5em;
+      }
+      .line-trakt {
+        background: #e6194b;
+        margin-left: -0.8em;
+      }
+      .git {
+        font-family: monospace;
+        font-size: 9pt;
+        display: flex;
+      }
+      .git .subprovider {
+        display: block;
+        white-space: nowrap;
+        padding-right: 0.5em;
+      }
+      .git .text {
+        display: block;
+        color: #666;
+      }
+      .line-git {
+        background: #666;
+      }
+      .facebook,
+      .twitter {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        padding-left: 0.1em;
+        padding-right: 0.1em;
+        border-left: 0.5em solid #f032e633;
+        border-right: 0.5em solid #f032e633;
+        font-style: italic;
+      }
+      .maildir {
+        padding-left: 1.5em;
+      }
+      .maildir::before {
+        display: block;
+        float: left;
+        content: '\1F4E7';
+        width: 1.5em;
+        margin-left: -1.5em;
+      }
+      .csv {
+        padding-left: 1.5em;
+        color: #008080;
+      }
+      .csv::before {
+        display: block;
+        float: left;
+        content: '\26BD';
+        width: 1.5em;
+        margin-left: -1.5em;
+      }
+      .line-csv {
+        background: #008080;
+        margin-left: -2.4em;
+      }
+      .highlight {
+        background: #000;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Automatic Diary {{ year }}</h2>
+      <div class="table">
+        <div class="tr">
+          {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+          <div class="th">{{ weekday }}</div>
+          {% endfor %}
         </div>
-    </body>
+        <div class="tbody">
+          {% for month, weeks in dates_by_month_week.items() %}
+          {% for week in weeks %}
+          <div class="tr">
+            {% for date in week %}
+            <div class="td{% if month is divisibleby(2) %} even{% endif %}">
+              <div class="cell">
+                <div class="content">
+                  <h2 title="{{ date.isoformat() }}">{{ date.day }}</h2>
+                  {% for item in items_by_month_day[month][date.day] %}
+                  <p class="item {{ item.provider }}{% if item.text is regex(highlight) %} highlight{% endif %}">
+                    <span class="subprovider">{{ item.subprovider }}</span>
+                    <span class="text">{{ item.text }}</span>
+                  </p>
+                  {% endfor %}
+                </div>
+                <div class="date">{{ date.strftime('%b %Y') }}</div>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="lines">
+              {% for provider, decile in provider_stats[month][loop.index0].items() %}
+              <div class="line line-{{ provider }}" style="left:{{ decile }}0%"></div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+          {% endfor %}
+        </div>
+        <div class="tr">
+          {% for weekday in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') %}
+          <div class="th">{{ weekday }}</div>
+          {% endfor %}
+        </div>
+      </div>
+  </body>
 </html>

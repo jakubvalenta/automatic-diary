@@ -6,7 +6,7 @@ from automatic_diary.cli import obfuscate
 
 class TestCLI(TestCase):
     def test_obfuscate(self):
-        source = 'Ve škole, 10'
+        source = "Ve škole, 10"
         result = obfuscate(source)
         self.assertNotEqual(source, result)
         self.assertEqual(len(source), len(result))
