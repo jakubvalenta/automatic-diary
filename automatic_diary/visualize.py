@@ -1,6 +1,7 @@
 import argparse
 import csv
 import datetime
+import json
 import logging
 import re
 import sys
@@ -54,7 +55,9 @@ DatesByYearMonthWeek: TypeAlias = dict[int, dict[int, list[list[datetime.date]]]
 ProviderStats: TypeAlias = dict[int, dict[int, list[dict[str, int]]]]
 
 
-def read_items(rows: Iterable[list[str]]) -> ItemsByYearMonthDay:
+def read_items(
+    rows: Iterable[list[str]], tags_dict: dict[str, str]
+) -> ItemsByYearMonthDay:
     """Read passed CSV rows into a dict.
 
     Example return value:
@@ -71,8 +74,19 @@ def read_items(rows: Iterable[list[str]]) -> ItemsByYearMonthDay:
     res: ItemsByYearMonthDay = defaultdict(
         lambda: defaultdict(lambda: defaultdict(list))
     )
-    for row in rows:
-        item = Item.from_tuple(row)
+    for formatted_datetime, provider, subprovider, text in rows:
+        datetime_ = datetime.datetime.fromisoformat(formatted_datetime)
+        tags = []
+        for pattern, tag in tags_dict.items():
+            if re.search(pattern, text):
+                tags.append(tag)
+        item = Item.normalized(
+            datetime_=datetime_,
+            text=text,
+            provider=provider,
+            subprovider=subprovider,
+            tags=tags,
+        )
         res[item.date.year][item.date.month][item.date.day].append(item)
     return res
 
@@ -260,7 +274,9 @@ def _render_template(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Visualize Automatic Diary CSV")
-    parser.add_argument("csv_path", help="Input CSV file path")
+    parser.add_argument(
+        "csv_file", type=argparse.FileType("r"), help="Input CSV file path"
+    )
     parser.add_argument("output_path", help="Output HTML file or directory path")
     parser.add_argument(
         "-a",
@@ -270,18 +286,39 @@ def main() -> None:
         "by default only the last year is visualized and written to the file OUTPUT_PATH",
     )
     parser.add_argument("-c", "--css-url", help="Additional CSS URL")
-    parser.add_argument("-i", "--highlight", help="Highlight items matching regex")
+    parser.add_argument(
+        "-i",
+        "--highlight",
+        help="[DEPRECATED] Highlight items matching regex",
+        # TODO Use deprecated=True once we support Python 3.13.
+    )
+    parser.add_argument(
+        "-t",
+        "--tags-file",
+        type=argparse.FileType("r"),
+        help='Tags JSON file path. The file format is {"<regex>": "<tag>"}. '
+        'A class "tag-<tag>" will be added to each item whose text matches <regex>.',
+    )
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable debugging output"
     )
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+    if args.highlight:
+        print(
+            "Option -i / --highlight is deprecated. Use a tags file with content "
+            '`{"<regex>": "highlight"}` and pass it using -t / --tags-file instead. '
+            "Then add a custom CSS with content `.tag-highlight { /* your CSS rules */ }` "
+            "and pass it using -c / --css-file.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     items_by_year_month_day: ItemsByYearMonthDay = {}
-    with open(args.csv_path) as f:
-        reader = csv.reader(f)
-        items_by_year_month_day = read_items(reader)
+    reader = csv.reader(args.csv_file)
+    tags_dict = json.load(args.tags_file) if args.tags_file else None
+    items_by_year_month_day = read_items(reader, tags_dict)
     dates_by_year_month_week: DatesByYearMonthWeek = gen_dates(items_by_year_month_day)
     provider_stats = calc_provider_stats(
         dates_by_year_month_week, items_by_year_month_day

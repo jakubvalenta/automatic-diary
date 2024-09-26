@@ -1,6 +1,6 @@
 import datetime
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import total_ordering
 
 import dateutil.tz
@@ -16,6 +16,7 @@ class Item:
     provider: str
     subprovider: str
     all_day: bool = False
+    tags: list[str] = field(default_factory=list)
 
     @classmethod
     def normalized(cls, datetime_: datetime.datetime, *args, **kwargs) -> "Item":
@@ -46,15 +47,4 @@ class Item:
             self.provider,
             self.subprovider,
             self.clean_text,
-        )
-
-    @classmethod
-    def from_tuple(cls, row: list[str]) -> "Item":
-        formatted_datetime, provider, subprovider, text = row
-        datetime_ = datetime.datetime.fromisoformat(formatted_datetime)
-        return cls.normalized(
-            datetime_=datetime_,
-            text=text,
-            provider=provider,
-            subprovider=subprovider,
         )

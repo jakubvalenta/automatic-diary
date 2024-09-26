@@ -156,10 +156,6 @@
         width: 1.5em;
         margin-left: -1.5em;
       }
-      .highlight {
-        background: #000;
-        color: #fff;
-      }
     </style>
     {%- if css_url %}
     <link rel="stylesheet" href="{{ css_url }}" type="text/css" media="screen" />
@@ -183,7 +179,7 @@
                 <div class="content">
                   <h2 title="{{ date.isoformat() }}">{{ date.day }}</h2>
                   {% for item in items_by_month_day[month][date.day] %}
-                  <p class="item {{ item.provider }}{% if item.text is regex(highlight) %} highlight{% endif %}"
+                  <p class="item {{ item.provider }}{% for tag in item.tags %} tag-{{ tag }}{% endfor %}"
                     data-subprovider="{{ item.subprovider }}">
                     <span class="subprovider">{{ item.subprovider }}</span>
                     <span class="text">{{ item.text }}</span>

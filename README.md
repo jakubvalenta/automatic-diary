@@ -408,15 +408,15 @@ $ automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_di
 ```
 
 By default, this command visualizes only those CSV items that happened within
-the latest year in the CSV file. To visualize **all items**, use the `-a` or
-`--all-years` option. Then pass a directory name as `<output html path>`.
-Example:
+the latest year in the CSV file. To visualize **all items**, use the `-a` /
+`--all-years` option. Then pass a directory path as `<output html path>`
+(instead of passing a file path). Example:
 
 ``` shell
 $ automatic-diary-visualize --all-years ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary
 ```
 
-The result will be a directory with files like this:
+The result will be a directory with an HTML document for each year:
 
 ```
 automatic_diary
@@ -425,14 +425,15 @@ automatic_diary
 └── 2024.html
 ```
 
-You can also use the `-c` or `--css-url` option to provide an **additional CSS
-file**. Example:
+For **custom styling** of the HTML document, you can pass an additional CSS file
+using the `-c` / `--css-url` option. The passed CSS URL must be absolute or
+relative to the output path. Example:
 
 ``` shell
 $ automatic-diary-visualize --css-url ./my_stylesheet.css ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
 ```
 
-In your CSS file, you can use for example the `data-subprovider` selector. Example:
+In your file, you can use for example the `data-subprovider` selector. Example:
 
 ``` css
 .csv[data-subprovider="running.csv"] {
@@ -440,7 +441,29 @@ In your CSS file, you can use for example the `data-subprovider` selector. Examp
 }
 ```
 
-See the help for all command line options:
+You can also use the `-t` / `--tags-file` option to add **additional CSS
+classes** to the diary items based on provided regexes. For example when you
+create the following tags JSON file:
+
+``` json
+{
+  "^Sport: ": "sport",
+  "^Idea: ": "idea",
+}
+```
+
+And pass it to the command like this:
+
+``` shell
+$ automatic-diary-visualize --css-url ./my_stylesheet.css --tags-file ./my_tags.json  ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
+```
+
+Then the command will add a CSS class `tag-sport` to each diary item that starts
+with "Sport: " and a CSS class `tag-idea` to each diary item that starts with
+"Idea: ". Then you can use these classes in your custom CSS (see the `-c` /
+`--css-url` option).
+
+See the **help*** for all command line options:
 
 ``` shell
 $ automatic-diary-visualize --help
