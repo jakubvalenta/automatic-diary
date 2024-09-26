@@ -47,7 +47,9 @@ def load_configs(
             yield provider, config
 
 
-def call_providers(configs: Iterable[tuple[str, dict]], no_cache: bool) -> Iterator[Item]:
+def call_providers(
+    configs: Iterable[tuple[str, dict]], no_cache: bool
+) -> Iterator[Item]:
     for provider, config in configs:
         name = f"automatic_diary.providers.{provider}.main"
         try:
@@ -91,7 +93,9 @@ def main():
             "be used."
         ),
     )
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable debugging output")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable debugging output"
+    )
     parser.add_argument("-n", "--no-cache", action="store_true", help="Don't use cache")
     parser.add_argument(
         "-o",

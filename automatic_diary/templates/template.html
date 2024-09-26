@@ -156,26 +156,14 @@
         width: 1.5em;
         margin-left: -1.5em;
       }
-      .csv {
-        padding-left: 1.5em;
-        color: #008080;
-      }
-      .csv::before {
-        display: block;
-        float: left;
-        content: '\26BD';
-        width: 1.5em;
-        margin-left: -1.5em;
-      }
-      .line-csv {
-        background: #008080;
-        margin-left: -2.4em;
-      }
       .highlight {
         background: #000;
         color: #fff;
       }
     </style>
+    {%- if css_url %}
+    <link rel="stylesheet" href="{{ css_url }}" type="text/css" media="screen" />
+    {%- endif %}
   </head>
   <body>
     <h1>Automatic Diary {{ year }}</h2>
@@ -195,7 +183,8 @@
                 <div class="content">
                   <h2 title="{{ date.isoformat() }}">{{ date.day }}</h2>
                   {% for item in items_by_month_day[month][date.day] %}
-                  <p class="item {{ item.provider }}{% if item.text is regex(highlight) %} highlight{% endif %}">
+                  <p class="item {{ item.provider }}{% if item.text is regex(highlight) %} highlight{% endif %}"
+                    data-subprovider="{{ item.subprovider }}">
                     <span class="subprovider">{{ item.subprovider }}</span>
                     <span class="text">{{ item.text }}</span>
                   </p>

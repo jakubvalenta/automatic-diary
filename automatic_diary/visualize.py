@@ -237,6 +237,7 @@ def _render_template(
     template: Template,
     path: Path,
     *,
+    css_url: str | None,
     dates_by_year_month_week: DatesByYearMonthWeek,
     items_by_year_month_day: ItemsByYearMonthDay,
     provider_stats: ProviderStats,
@@ -245,6 +246,7 @@ def _render_template(
 ) -> None:
     stream = template.stream(
         {
+            "css_url": css_url,
             "dates_by_month_week": dates_by_year_month_week[year],
             "items_by_month_day": items_by_year_month_day[year],
             "provider_stats": provider_stats[year],
@@ -267,6 +269,7 @@ def main() -> None:
         help="Visualize all years, write them in the directory OUTPUT_PATH; "
         "by default only the last year is visualized and written to the file OUTPUT_PATH",
     )
+    parser.add_argument("-c", "--css-url", help="Additional CSS URL")
     parser.add_argument("-i", "--highlight", help="Highlight items matching regex")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable debugging output"
@@ -283,6 +286,7 @@ def main() -> None:
     provider_stats = calc_provider_stats(
         dates_by_year_month_week, items_by_year_month_day
     )
+    css_url = args.css_url
     today = datetime.date.today()
 
     environment = Environment(
@@ -299,6 +303,7 @@ def main() -> None:
             _render_template(
                 template,
                 (output_dir_path / f"{year}.html"),
+                css_url=css_url,
                 dates_by_year_month_week=dates_by_year_month_week,
                 items_by_year_month_day=items_by_year_month_day,
                 provider_stats=provider_stats,
@@ -311,6 +316,7 @@ def main() -> None:
         _render_template(
             template,
             output_file_path,
+            css_url=css_url,
             dates_by_year_month_week=dates_by_year_month_week,
             items_by_year_month_day=items_by_year_month_day,
             provider_stats=provider_stats,
