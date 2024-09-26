@@ -156,6 +156,10 @@
         width: 1.5em;
         margin-left: -1.5em;
       }
+      .today {
+        background: #f9f9f9;
+        border: 2px solid #111;
+      }
     </style>
     {%- if css_url %}
     <link rel="stylesheet" href="{{ css_url }}" type="text/css" media="screen" />
@@ -170,33 +174,33 @@
           {% endfor %}
         </div>
         <div class="tbody">
-          {% for month, weeks in dates_by_month_week.items() %}
-          {% for week in weeks %}
+          {% for week in dates_by_week %}
           <div class="tr">
             {% for date in week %}
-            <div class="td{% if month is divisibleby(2) %} even{% endif %}">
+            <div class="td{% if date.month is divisibleby(2) %} even{% endif %}{% if date == today %} today{% endif %}">
               <div class="cell">
                 <div class="content">
                   <h2 title="{{ date.isoformat() }}">{{ date.day }}</h2>
-                  {% for item in items_by_month_day[month][date.day] %}
+                  {% if items_by_year_month_day is hasdeep(date.year, date.month, date.day) %}
+                  {% for item in items_by_year_month_day[date.year][date.month][date.day] %}
                   <p class="item {{ item.provider }}{% for tag in item.tags %} tag-{{ tag }}{% endfor %}"
                     data-subprovider="{{ item.subprovider }}">
                     <span class="subprovider">{{ item.subprovider }}</span>
                     <span class="text">{{ item.text }}</span>
                   </p>
                   {% endfor %}
+                  {% endif %}
                 </div>
                 <div class="date">{{ date.strftime('%b %Y') }}</div>
               </div>
             </div>
             {% endfor %}
             <div class="lines">
-              {% for provider, decile in provider_stats[month][loop.index0].items() %}
+              {% for provider, decile in provider_stats[loop.index0].items() %}
               <div class="line line-{{ provider }}" style="left:{{ decile }}0%"></div>
               {% endfor %}
             </div>
           </div>
-          {% endfor %}
           {% endfor %}
         </div>
         <div class="tr">

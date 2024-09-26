@@ -8,10 +8,13 @@ import sys
 from calendar import Calendar
 from collections import defaultdict
 from pathlib import Path
+from pprint import pprint as pp
 from statistics import quantiles
 from typing import Iterable, Sequence, TypeAlias
 
+from dateutil.rrule import DAILY, rrule
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
+from more_itertools import chunked
 
 from automatic_diary.model import Item
 
@@ -30,33 +33,43 @@ ItemsByYearMonthDay: TypeAlias = dict[int, dict[int, dict[int, list[Item]]]]
 
 # Example:
 # {
-#     2023: {
-#         1: [
-#            [0, 0, 0, 0, 0, 0, 1],
-#            [2, 3, 4, 5, 6, 7, 8],
-#            ...
-#         },
+#     2023: [
+#         [
+#             datetime.date(2022, 12, 26),
+#             datetime.date(2022, 12, 27),
+#             datetime.date(2022, 12, 28),
+#             datetime.date(2022, 12, 29),
+#             datetime.date(2022, 12, 30),
+#             datetime.date(2022, 12, 31),
+#             datetime.date(2023, 1, 1)
+#         ],
+#         [
+#             datetime.date(2023, 1, 2),
+#             datetime.date(2023, 1, 3),
+#             datetime.date(2023, 1, 4),
+#             datetime.date(2023, 1, 5),
+#             datetime.date(2023, 1, 6),
+#             datetime.date(2023, 1, 7),
+#             datetime.date(2023, 1, 8)
+#         ],
 #         ...
-#     }
+#     ]
 # }
-DatesByYearMonthWeek: TypeAlias = dict[int, dict[int, list[list[datetime.date]]]]
+DatesByYearWeek: TypeAlias = dict[int, list[list[datetime.date]]]
 
 # Example:
 # {
-#     2023: {
-#         11: [
-#             {"git": 13, "csv: 10"}, # first week
-#             {"git": 1, "csv: 90"}, # second week
-#             ...
-#         ],
+#     2023: [
+#         {"git": 13, "csv: 10"}, # first week
+#         {"git": 1, "csv: 90"}, # second week
 #         ...
-#     }
+#     ]
 # }
-ProviderStats: TypeAlias = dict[int, dict[int, list[dict[str, int]]]]
+ProviderStats: TypeAlias = dict[int, list[dict[str, int]]]
 
 
 def read_items(
-    rows: Iterable[list[str]], tags_dict: dict[str, str]
+    rows: Iterable[list[str]], tags_dict: dict[str, str] | None = None
 ) -> ItemsByYearMonthDay:
     """Read passed CSV rows into a dict.
 
@@ -71,15 +84,14 @@ def read_items(
         }
     }
     """
-    res: ItemsByYearMonthDay = defaultdict(
-        lambda: defaultdict(lambda: defaultdict(list))
-    )
+    items_by_year_month_day: ItemsByYearMonthDay = {}
     for formatted_datetime, provider, subprovider, text in rows:
         datetime_ = datetime.datetime.fromisoformat(formatted_datetime)
         tags = []
-        for pattern, tag in tags_dict.items():
-            if re.search(pattern, text):
-                tags.append(tag)
+        if tags_dict:
+            for pattern, tag in tags_dict.items():
+                if re.search(pattern, text):
+                    tags.append(tag)
         item = Item.normalized(
             datetime_=datetime_,
             text=text,
@@ -87,30 +99,60 @@ def read_items(
             subprovider=subprovider,
             tags=tags,
         )
-        res[item.date.year][item.date.month][item.date.day].append(item)
-    return res
+        date = item.date
+        if date.year not in items_by_year_month_day:
+            items_by_year_month_day[date.year] = {}
+        if date.month not in items_by_year_month_day[date.year]:
+            items_by_year_month_day[date.year][date.month] = {}
+        if date.day not in items_by_year_month_day[date.year][date.month]:
+            items_by_year_month_day[date.year][date.month][date.day] = []
+        items_by_year_month_day[date.year][date.month][date.day].append(item)
+    return items_by_year_month_day
 
 
-def gen_dates(items_by_year_month_day: ItemsByYearMonthDay) -> DatesByYearMonthWeek:
+def gen_dates(items_by_year_month_day: ItemsByYearMonthDay) -> DatesByYearWeek:
     """Generate a calendar structure for passed items.
 
     Example return value:
 
     {
-        2023: {
-            11: {
-                1: [Item, Item],
-                5: [Item]
-            }
-        }
+        2023: [
+            [
+                datetime.date(2022, 12, 26),
+                datetime.date(2022, 12, 27),
+                datetime.date(2022, 12, 28),
+                datetime.date(2022, 12, 29),
+                datetime.date(2022, 12, 30),
+                datetime.date(2022, 12, 31),
+                datetime.date(2023, 1, 1)
+            ],
+            [
+                datetime.date(2023, 1, 2),
+                datetime.date(2023, 1, 3),
+                datetime.date(2023, 1, 4),
+                datetime.date(2023, 1, 5),
+                datetime.date(2023, 1, 6),
+                datetime.date(2023, 1, 7),
+                datetime.date(2023, 1, 8)
+            ],
+            ...
+        ]
     }
     """
     calendar = Calendar()
     return {
-        year: {
-            month: calendar.monthdatescalendar(year, month) for month in range(1, 13)
-        }
-        for year in items_by_year_month_day.keys()
+        year: [
+            [datetime_.date() for datetime_ in week]
+            for week in chunked(
+                rrule(
+                    DAILY,
+                    dtstart=calendar.monthdatescalendar(year, 1)[0][0],
+                    until=calendar.monthdatescalendar(year, 12)[-1][-1],
+                ),
+                7,
+            )
+        ]
+        for year in items_by_year_month_day
     }
 
 
@@ -128,7 +170,7 @@ def quantile_rank(score: float, cut_points: list[float]) -> int:
 
 
 def calc_provider_stats(
-    dates_by_year_month_week: DatesByYearMonthWeek,
+    dates_by_year_week: DatesByYearWeek,
     items_by_year_month_day: ItemsByYearMonthDay,
 ) -> ProviderStats:
     """Calculate provider stats.
@@ -158,31 +200,27 @@ def calc_provider_stats(
     And returns it like this:
 
     {
-        2023: {
-            11: [
-                {"git": 10, "csv": 7},
-                {"git": 7, "csv": 7},
-                {"git": 4, "csv": 1},
-                {"git": 1, "csv": 10},
-            ]
-        }
+        2023: [
+            {"git": 10, "csv": 7},
+            {"git": 7, "csv": 7},
+            {"git": 4, "csv": 1},
+            {"git": 1, "csv": 10},
+        ]
     }
     """
     # Dictionary in format:
     # {
-    #     2023: {
-    #         11: [
-    #             {"git": 150, "csv": 70},
-    #             {"git": 145, "csv": 30},
-    #             {"git": 120, "csv": 10},
-    #             {"git": 100, "csv": 90},
-    #             ...
-    #         ]
-    #     }
+    #     2023: [
+    #         {"git": 150, "csv": 70},
+    #         {"git": 145, "csv": 30},
+    #         {"git": 120, "csv": 10},
+    #         {"git": 100, "csv": 90},
+    #         ...
+    #     ]
     # }
-    item_count_by_year_month_week_provider: dict[
-        int, dict[int, list[dict[str, int]]]
-    ] = defaultdict(lambda: defaultdict(list))
+    item_count_by_year_week_provider: dict[int, list[dict[str, int]]] = defaultdict(
+        list
+    )
 
     # Dictionary in format:
     # {
@@ -191,19 +229,19 @@ def calc_provider_stats(
     # }
     item_counts_by_provider: dict[str, list[int]] = defaultdict(list)
 
-    for year, months in dates_by_year_month_week.items():
-        for month, weeks in months.items():
-            for week in weeks:
-                week_item_count_by_provider: dict[str, int] = defaultdict(int)
-                for date in week:
-                    items = items_by_year_month_day[year][month][date.day]
-                    for item in items:
-                        week_item_count_by_provider[item.provider] += 1
-                for provider, item_count in week_item_count_by_provider.items():
-                    item_counts_by_provider[provider].append(item_count)
-                item_count_by_year_month_week_provider[year][month].append(
-                    week_item_count_by_provider
-                )
+    for year, weeks in dates_by_year_week.items():
+        for week in weeks:
+            week_item_count_by_provider: dict[str, int] = defaultdict(int)
+            for date in week:
+                try:
+                    items = items_by_year_month_day[date.year][date.month][date.day]
+                except KeyError:
+                    continue
+                for item in items:
+                    week_item_count_by_provider[item.provider] += 1
+            for provider, item_count in week_item_count_by_provider.items():
+                item_counts_by_provider[provider].append(item_count)
+            item_count_by_year_week_provider[year].append(week_item_count_by_provider)
 
     # Dictionary in format:
     # {
@@ -217,27 +255,22 @@ def calc_provider_stats(
 
     # Dictionary in format:
     # {
-    #     2023: {
-    #         11: [
-    #             {"git": 10, "csv": 7},
-    #             {"git": 7, "csv": 7},
-    #             {"git": 4, "csv": 1},
-    #             {"git": 1, "csv": 10},
-    #         ]
-    #     }
+    #     2023: [
+    #         {"git": 10, "csv": 7}, # first week
+    #         {"git": 7, "csv": 7}, # second week
+    #         {"git": 4, "csv": 1}, # third week
+    #         {"git": 1, "csv": 10}, # fourth week
+    #     ]
     # }
     return {
-        year: {
-            month: [
-                {
-                    provider: quantile_rank(item_count, deciles_by_provider[provider])
-                    for provider, item_count in item_count_by_provider.items()
-                }
-                for item_count_by_provider in weeks
-            ]
-            for month, weeks in months.items()
-        }
-        for year, months in item_count_by_year_month_week_provider.items()
+        year: [
+            {
+                provider: quantile_rank(item_count, deciles_by_provider[provider])
+                for provider, item_count in item_count_by_provider.items()
+            }
+            for item_count_by_provider in weeks
+        ]
+        for year, weeks in item_count_by_year_week_provider.items()
     }
 
 
@@ -247,12 +280,21 @@ def _is_regex(s: str, regex: str) -> bool:
     return re.search(regex, s) is not None
 
 
+def _has_deep(d: dict, *attrs: str) -> bool:
+    for attr in attrs:
+        if attr in d:
+            d = d[attr]
+        else:
+            return False
+    return True
+
+
 def _render_template(
     template: Template,
     path: Path,
     *,
     css_url: str | None,
-    dates_by_year_month_week: DatesByYearMonthWeek,
+    dates_by_year_week: DatesByYearWeek,
     items_by_year_month_day: ItemsByYearMonthDay,
     provider_stats: ProviderStats,
     today: datetime.date,
@@ -261,8 +303,8 @@ def _render_template(
     stream = template.stream(
         {
             "css_url": css_url,
-            "dates_by_month_week": dates_by_year_month_week[year],
-            "items_by_month_day": items_by_year_month_day[year],
+            "dates_by_week": dates_by_year_week[year],
+            "items_by_year_month_day": items_by_year_month_day,
             "provider_stats": provider_stats[year],
             "today": today,
             "year": year,
@@ -319,10 +361,8 @@ def main() -> None:
     reader = csv.reader(args.csv_file)
     tags_dict = json.load(args.tags_file) if args.tags_file else None
     items_by_year_month_day = read_items(reader, tags_dict)
-    dates_by_year_month_week: DatesByYearMonthWeek = gen_dates(items_by_year_month_day)
-    provider_stats = calc_provider_stats(
-        dates_by_year_month_week, items_by_year_month_day
-    )
+    dates_by_year_week = gen_dates(items_by_year_month_day)
+    provider_stats = calc_provider_stats(dates_by_year_week, items_by_year_month_day)
     css_url = args.css_url
     today = datetime.date.today()
 
@@ -330,6 +370,7 @@ def main() -> None:
         autoescape=select_autoescape(["html"]),
         loader=PackageLoader("automatic_diary", "templates"),
     )
+    environment.tests["hasdeep"] = _has_deep
     environment.tests["regex"] = _is_regex
     template = environment.get_template("template.html")
 
@@ -341,7 +382,7 @@ def main() -> None:
                 template,
                 (output_dir_path / f"{year}.html"),
                 css_url=css_url,
-                dates_by_year_month_week=dates_by_year_month_week,
+                dates_by_year_week=dates_by_year_week,
                 items_by_year_month_day=items_by_year_month_day,
                 provider_stats=provider_stats,
                 today=today,
@@ -349,12 +390,12 @@ def main() -> None:
             )
     else:
         output_file_path = Path(args.output_path)
-        year = sorted(list(items_by_year_month_day.keys()))[-1]
+        year = max(items_by_year_month_day.keys())
         _render_template(
             template,
             output_file_path,
             css_url=css_url,
-            dates_by_year_month_week=dates_by_year_month_week,
+            dates_by_year_week=dates_by_year_week,
             items_by_year_month_day=items_by_year_month_day,
             provider_stats=provider_stats,
             today=today,

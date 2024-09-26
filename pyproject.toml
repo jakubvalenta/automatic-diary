@@ -50,6 +50,7 @@ flake8-pytest-style = "^2.0.0"
 pytest = "^8.3.3"
 
 [tool.flake8]
+extend-ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107", "PT009"]
 max-line-length = 100
 
 [tool.isort]
