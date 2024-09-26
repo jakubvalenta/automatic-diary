@@ -463,7 +463,7 @@ with "Sport: " and a CSS class `tag-idea` to each diary item that starts with
 "Idea: ". Then you can use these classes in your custom CSS (see the `-c` /
 `--css-url` option).
 
-See the **help*** for all command line options:
+See the **help** for all command line options:
 
 ``` shell
 $ automatic-diary-visualize --help
