@@ -261,7 +261,7 @@ def _render_template(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Visualize Automatic Diary CSV")
     parser.add_argument("csv_path", help="Input CSV file path")
-    parser.add_argument("output_path", help="Output file or directory path")
+    parser.add_argument("output_path", help="Output HTML file or directory path")
     parser.add_argument(
         "-a",
         "--all-years",

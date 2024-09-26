@@ -407,6 +407,39 @@ Example:
 $ automatic-diary-visualize ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
 ```
 
+By default, this command visualizes only those CSV items that happened within
+the latest year in the CSV file. To visualize **all items**, use the `-a` or
+`--all-years` option. Then pass a directory name as `<output html path>`.
+Example:
+
+``` shell
+$ automatic-diary-visualize --all-years ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary
+```
+
+The result will be a directory with files like this:
+
+```
+automatic_diary
+├── 2022.html
+├── 2023.html
+└── 2024.html
+```
+
+You can also use the `-c` or `--css-url` option to provide an **additional CSS
+file**. Example:
+
+``` shell
+$ automatic-diary-visualize --css-url ./my_stylesheet.css ~/Desktop/automatic_diary.csv ~/Desktop/automatic_diary.html
+```
+
+In your CSS file, you can use for example the `data-subprovider` selector. Example:
+
+``` css
+.csv[data-subprovider="running.csv"] {
+  color: #008080;
+}
+```
+
 See the help for all command line options:
 
 ``` shell
