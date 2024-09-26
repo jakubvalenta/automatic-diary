@@ -176,7 +176,8 @@ configuration.
     ``` json
     "config": {
         "base_path": "<path to directory - will be searched recursively for git repos>",
-        "author": "<author name>"
+        "author": "<author name>",
+        "cache_dir": "<cache directory path>"
     }
     ```
 

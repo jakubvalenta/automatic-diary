@@ -3,14 +3,16 @@
         "provider": "git",
         "config": {
             "base_path": "/home/jane/devel",
-            "author": "Jane Doe"
+            "author": "Jane Doe",
+            "cache_dir": "/home/jane/.cache/automatic-diary/git"
         }
     },
     {
         "provider": "git",
         "config": {
             "base_path": "/home/jane/work",
-            "author": "Jane Doe"
+            "author": "Jane Doe",
+            "cache_dir": "/home/jane/.cache/automatic-diary/git"
         }
     },
     {
