@@ -9,7 +9,7 @@ from automatic_diary.providers.orgmode.main import parse_orgmode
 class TestOrgmode(TestCase):
     def test_parse_orgmode(self):
         f = io.StringIO(
-            '''#+STARTUP: showall
+            """#+STARTUP: showall
 
 * <2019-01-17 Thu>
 
@@ -31,47 +31,54 @@ something else
 - a
 - list
 
-* TODO <2019-01-20 Sun>
+* <2019-01-20 Sun>
 
-ignore this
+don't ignore this
 
-'''
+"""
         )
-        subprovider = 'my_provider'
+        subprovider = "my_provider"
         result = list(parse_orgmode(f, subprovider))
         expected = [
             Item.normalized(
                 datetime_=datetime.datetime(2019, 1, 17),
-                text='foo\nbar',
-                provider='orgmode',
+                text="foo\nbar",
+                provider="orgmode",
                 subprovider=subprovider,
                 all_day=True,
             ),
             Item.normalized(
                 datetime_=datetime.datetime(2019, 1, 17),
-                text='two empty lines are okay',
-                provider='orgmode',
+                text="two empty lines are okay",
+                provider="orgmode",
                 subprovider=subprovider,
                 all_day=True,
             ),
             Item.normalized(
                 datetime_=datetime.datetime(2019, 1, 18),
-                text='missing empty line is okay',
-                provider='orgmode',
+                text="missing empty line is okay",
+                provider="orgmode",
                 subprovider=subprovider,
                 all_day=True,
             ),
             Item.normalized(
                 datetime_=datetime.datetime(2019, 1, 19),
-                text='something',
-                provider='orgmode',
+                text="something",
+                provider="orgmode",
                 subprovider=subprovider,
                 all_day=True,
             ),
             Item.normalized(
                 datetime_=datetime.datetime(2019, 1, 19),
-                text='something else\n- with\n- a\n- list',
-                provider='orgmode',
+                text="something else\n- with\n- a\n- list",
+                provider="orgmode",
+                subprovider=subprovider,
+                all_day=True,
+            ),
+            Item.normalized(
+                datetime_=datetime.datetime(2019, 1, 20),
+                text="don't ignore this",
+                provider="orgmode",
                 subprovider=subprovider,
                 all_day=True,
             ),

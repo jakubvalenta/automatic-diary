@@ -24,10 +24,9 @@ def parse_orgmode(f: IO, subprovider: str) -> Iterator[Item]:
             m = regex_heading.match(line_clean)
             # Title line
             if m:
-                if m.group("todo"):
-                    current_datetime = None
-                else:
-                    current_datetime = datetime.datetime.strptime(m.group("date"), "%Y-%m-%d %a")
+                current_datetime = datetime.datetime.strptime(
+                    m.group("date"), "%Y-%m-%d %a"
+                )
             # Paragraph line but not before first heading
             elif current_datetime:
                 current_paragraph.append(line_clean)
