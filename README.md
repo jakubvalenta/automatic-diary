@@ -177,7 +177,8 @@ configuration.
     "config": {
         "base_path": "<path to directory - will be searched recursively for git repos>",
         "author": "<author name>",
-        "cache_dir": "<cache directory path>"
+        "cache_dir": "<cache directory path>",,
+        "max_depth": "<max directory depth to search - 5 is a good default value>"
     }
     ```
 

@@ -4,7 +4,8 @@
         "config": {
             "base_path": "/home/jane/devel",
             "author": "Jane Doe",
-            "cache_dir": "/home/jane/.cache/automatic-diary/git"
+            "cache_dir": "/home/jane/.cache/automatic-diary/git",
+            "max_depth": 5
         }
     },
     {
@@ -12,7 +13,8 @@
         "config": {
             "base_path": "/home/jane/work",
             "author": "Jane Doe",
-            "cache_dir": "/home/jane/.cache/automatic-diary/git"
+            "cache_dir": "/home/jane/.cache/automatic-diary/git",
+            "max_depth": 5
         }
     },
     {

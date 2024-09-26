@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 provider = Path(__file__).parent.name
 
 
-def _find_git_repos(base_path: str) -> Iterator[str]:
+def _find_git_repos(
+    base_path: str, max_depth: int | None = None, curr_depth: int = 1
+) -> Iterator[str]:
+    if max_depth is not None and curr_depth > max_depth:
+        return
     if not os.path.isdir(base_path):
         logger.warn(f"Directory {base_path} doesn't exist")
         return
@@ -29,7 +33,7 @@ def _find_git_repos(base_path: str) -> Iterator[str]:
         except OSError:
             return
         if is_normal_dir:
-            yield from _find_git_repos(entry.path)
+            yield from _find_git_repos(entry.path, max_depth, curr_depth + 1)
 
 
 def _call_git_rev_parse(repo_path: str) -> str:
@@ -81,7 +85,7 @@ def _read_git_logs(
 def main(config: dict, no_cache: bool, *args, **kwargs) -> Iterator[Item]:
     base_path = config["base_path"]
     author = config["author"]
-    repo_paths = _find_git_repos(base_path)
+    repo_paths = _find_git_repos(base_path, config.get("max_depth"))
     cache_dir_str = config.get("cache_dir")
     cache_dir = Path(cache_dir_str) if cache_dir_str else None
     return _read_git_logs(repo_paths, author, cache_dir, no_cache)
