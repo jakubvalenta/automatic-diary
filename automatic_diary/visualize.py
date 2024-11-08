@@ -8,7 +8,6 @@ import sys
 from calendar import Calendar
 from collections import defaultdict
 from pathlib import Path
-from pprint import pprint as pp
 from statistics import quantiles
 from typing import Iterable, Sequence, TypeAlias
 
