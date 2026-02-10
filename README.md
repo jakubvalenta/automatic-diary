@@ -65,7 +65,7 @@ $ pip install --user --upgrade .
 
 Install these dependencies manually:
 
-- Python >= 3.9
+- Python >= 3.10
 - poetry
 - libsecret (Linux keyring) -- required by the `caldav` provider
 
