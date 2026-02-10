@@ -21,54 +21,59 @@ class Status:
 
 
 filter_regex = re.compile(
-    '|'.join(
+    "|".join(
         [
-            r'hat an .+ teilgenommen\.',
-            r'hat .+ abonniert\.',
-            r'hat eine private Veranstaltung erstellt\.',
+            r"hat an .+ teilgenommen\.",
+            r"hat .+ abonniert\.",
+            r"hat eine private Veranstaltung erstellt\.",
         ]
     )
 )
 
 
 def parse_datetime(s: str) -> Optional[datetime.datetime]:
-    s = re.sub(r'\s(at|um)\s', ' ', s)
-    s = re.sub(r'UTC([+-]\d{2})', r'\g<1>00', s)  # "UTC+01" > "+0100"
-    s = re.sub(r'\b(\d{1}[ :])', r'0\g<1>', s)  # "1:37" > "01:37"
+    s = re.sub(r"\s(at|um)\s", " ", s)
+    s = re.sub(r"UTC([+-]\d{2})", r"\g<1>00", s)  # "UTC+01" > "+0100"
+    s = re.sub(r"\b(\d{1}[ :])", r"0\g<1>", s)  # "1:37" > "01:37"
     datetime_ = dateparser.parse(s)
-    logger.info('Parsed date string %s as %s', s, datetime_)
+    logger.info("Parsed date string %s as %s", s, datetime_)
     return datetime_
 
 
 def _parse_timeline_page(soup: BeautifulSoup) -> Iterator[Status]:
-    for p in soup.find_all('p'):
-        comment_el = p.find(class_='comment')
+    for p in soup.find_all("p"):
+        comment_el = p.find(class_="comment")
         if not comment_el:
             continue
         text = comment_el.string
         if not text or filter_regex.search(str(p.contents[1])):
             logger.warn('Not a status, skipping: "%s"', text)
             continue
-        formatted_datetime = p.find(class_='meta').string
+        datetime_el = p.find(class_="meta")
+        if not datetime_el:
+            continue
+        formatted_datetime = datetime_el.string
+        if not formatted_datetime:
+            continue
         datetime_ = parse_datetime(formatted_datetime)
         if not datetime_:
             logger.warn('Failed to parse date "%s"', formatted_datetime)
             continue
-        logger.info('Found status from %s: %s', datetime_, text)
+        logger.info("Found status from %s: %s", datetime_, text)
         yield Status(datetime_=datetime_, text=text)
 
 
 def _read_html(path: str) -> BeautifulSoup:
     with open(path) as f:
         html = f.read()
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, "html.parser")
     return soup
 
 
 def main(config: dict, *args, **kwargs) -> Iterator[Item]:
-    path = config['path']
-    username = config['username']
-    logger.info('Reading Facebook archive %s', path)
+    path = config["path"]
+    username = config["username"]
+    logger.info("Reading Facebook archive %s", path)
     soup = _read_html(path)
     for status in _parse_timeline_page(soup):
         yield Item.normalized(

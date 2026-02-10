@@ -29,7 +29,10 @@ def _write_events_to_cache(events: list[caldav.Event], cache_dir: Path):
     logger.info(f"Writing cache {cache_dir}")
     cache_dir.mkdir(parents=True, exist_ok=True)
     for event in events:
-        _, event_id = event.url.rsplit("/", maxsplit=1)
+        event_url = event.url
+        if not event_url:
+            continue
+        _, event_id = event_url.rsplit("/", maxsplit=1)
         cache_file = cache_dir / event_id
         cache_file.write_text(event.data)
 
@@ -45,7 +48,9 @@ def _download_events(
     logger.info("Reading principal")
     principal = client.principal()
     events = list(
-        itertools.chain.from_iterable(calendar.events() for calendar in principal.calendars())
+        itertools.chain.from_iterable(
+            calendar.events() for calendar in principal.calendars()
+        )
     )
     _write_events_to_cache(events, cache_dir)
     return [event.data for event in events]
