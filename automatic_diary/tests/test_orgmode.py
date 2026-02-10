@@ -8,8 +8,7 @@ from automatic_diary.providers.orgmode.main import parse_orgmode
 
 class TestOrgmode(TestCase):
     def test_parse_orgmode(self):
-        f = io.StringIO(
-            """#+STARTUP: showall
+        f = io.StringIO("""#+STARTUP: showall
 
 * <2019-01-17 Thu>
 
@@ -35,8 +34,7 @@ something else
 
 don't ignore this
 
-"""
-        )
+""")
         subprovider = "my_provider"
         result = list(parse_orgmode(f, subprovider))
         expected = [

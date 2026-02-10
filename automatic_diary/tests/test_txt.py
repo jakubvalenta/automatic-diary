@@ -8,8 +8,7 @@ from automatic_diary.providers.txt.main import parse_txt
 
 class TestTxt(TestCase):
     def test_parse_txt(self):
-        f = io.StringIO(
-            '''2019-01-17 Čt
+        f = io.StringIO('''2019-01-17 Čt
     foo
     bar
         baz baz
@@ -24,8 +23,7 @@ class TestTxt(TestCase):
             baz
         spam
     lorem
-'''
-        )
+''')
         subprovider = 'my_provider'
         result = list(parse_txt(f, subprovider))
         expected = [

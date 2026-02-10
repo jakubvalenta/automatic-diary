@@ -9,14 +9,12 @@ from automatic_diary.providers.orgmodelist.main import parse_orgmode_list
 
 class TestOrgmode(TestCase):
     def test_parse_orgmode_list(self):
-        org = orgparse.loads(
-            '''#+STARTUP: showall
+        org = orgparse.loads('''#+STARTUP: showall
 
 - Lorem ipsum foo. <2019-01-17 Thu>
 - bar <2019-01-18 Fri 11:30>
 - spam [2021-05-13 Thu]
-'''
-        )
+''')
         subprovider = 'my_provider'
         result = list(parse_orgmode_list(org, subprovider))
         expected = [

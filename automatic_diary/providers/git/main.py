@@ -66,9 +66,7 @@ def _read_git_logs(
             continue
         cache_file = cache_dir / repo_name / f"{rev}.txt" if cache_dir else None
         try:
-            log = with_cache(
-                lambda: _call_git_log(repo_path, author), cache_file, no_cache
-            )
+            log = with_cache(lambda: _call_git_log(repo_path, author), cache_file, no_cache)
         except subprocess.CalledProcessError:
             continue
         for log_line in log.splitlines():

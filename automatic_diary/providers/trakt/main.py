@@ -22,14 +22,10 @@ class Application(object):
 
         # Configure client
         Trakt.configuration.defaults.app(
-            id=config[
-                "app_id"
-            ]  # (e.g. "478" for https://trakt.tv/oauth/applications/478)
+            id=config["app_id"]  # (e.g. "478" for https://trakt.tv/oauth/applications/478)
         )
 
-        Trakt.configuration.defaults.client(
-            id=config["key_id"], secret=config["key_secret"]
-        )
+        Trakt.configuration.defaults.client(id=config["key_id"], secret=config["key_secret"])
 
     def auth(self) -> bool:
         if os.path.exists(self.token_name):
@@ -42,9 +38,7 @@ class Application(object):
         pin = input("Pin: ")
 
         # Exchange `pin` for an account authorization token
-        self.authorization = Trakt["oauth"].token_exchange(
-            pin, "urn:ietf:wg:oauth:2.0:oob"
-        )
+        self.authorization = Trakt["oauth"].token_exchange(pin, "urn:ietf:wg:oauth:2.0:oob")
 
         if not self.authorization:
             logger.warn("ERROR: Authentication failed")

@@ -48,9 +48,7 @@ def _download_events(
     logger.info("Reading principal")
     principal = client.principal()
     events = list(
-        itertools.chain.from_iterable(
-            calendar.events() for calendar in principal.calendars()
-        )
+        itertools.chain.from_iterable(calendar.events() for calendar in principal.calendars())
     )
     _write_events_to_cache(events, cache_dir)
     return [event.data for event in events]

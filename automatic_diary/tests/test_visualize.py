@@ -15,17 +15,17 @@ def test_read_items():
             9: {
                 24: [
                     Item(
-                        datetime.datetime.fromisoformat(
-                            "2024-09-24T23:11:53.589437"
-                        ).replace(tzinfo=default_tz),
+                        datetime.datetime.fromisoformat("2024-09-24T23:11:53.589437").replace(
+                            tzinfo=default_tz
+                        ),
                         "Initial commit",
                         "git",
                         "my-project",
                     ),
                     Item(
-                        datetime.datetime.fromisoformat(
-                            "2024-09-24T23:12:03.861082"
-                        ).replace(tzinfo=default_tz),
+                        datetime.datetime.fromisoformat("2024-09-24T23:12:03.861082").replace(
+                            tzinfo=default_tz
+                        ),
                         "Add more files",
                         "git",
                         "my-project",

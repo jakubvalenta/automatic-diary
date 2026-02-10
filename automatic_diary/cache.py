@@ -5,9 +5,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-def with_cache(
-    func: Callable[..., str], cache_file: Path | None, no_cache: bool
-) -> str:
+def with_cache(func: Callable[..., str], cache_file: Path | None, no_cache: bool) -> str:
     if not cache_file:
         return func()
     if not no_cache and cache_file.is_file():

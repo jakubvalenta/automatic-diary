@@ -156,9 +156,7 @@ def gen_dates(items_by_year_month_day: ItemsByYearMonthDay) -> DatesByYearWeek:
 
 
 def deciles(data: Sequence[float]) -> list[float]:
-    return quantiles(
-        data if len(data) >= 2 else list(data) + [0], n=10, method="inclusive"
-    )
+    return quantiles(data if len(data) >= 2 else list(data) + [0], n=10, method="inclusive")
 
 
 def quantile_rank(score: float, cut_points: list[float]) -> int:
@@ -217,9 +215,7 @@ def calc_provider_stats(
     #         ...
     #     ]
     # }
-    item_count_by_year_week_provider: dict[int, list[dict[str, int]]] = defaultdict(
-        list
-    )
+    item_count_by_year_week_provider: dict[int, list[dict[str, int]]] = defaultdict(list)
 
     # Dictionary in format:
     # {
@@ -248,8 +244,7 @@ def calc_provider_stats(
     #     "csv": [16.0, 22.0, 28.0, 38.0, 50.0, 62.0, 72.0, 78.0, 84.0],
     # }
     deciles_by_provider: dict[str, list[float]] = {
-        provider: deciles(item_counts)
-        for provider, item_counts in item_counts_by_provider.items()
+        provider: deciles(item_counts) for provider, item_counts in item_counts_by_provider.items()
     }
 
     # Dictionary in format:
@@ -315,9 +310,7 @@ def _render_template(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Visualize Automatic Diary CSV")
-    parser.add_argument(
-        "csv_file", type=argparse.FileType("r"), help="Input CSV file path"
-    )
+    parser.add_argument("csv_file", type=argparse.FileType("r"), help="Input CSV file path")
     parser.add_argument("output_path", help="Output HTML file or directory path")
     parser.add_argument(
         "-a",
@@ -340,9 +333,7 @@ def main() -> None:
         help='Tags JSON file path. The file format is {"<regex>": "<tag>"}. '
         'A class "tag-<tag>" will be added to each item whose text matches <regex>.',
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable debugging output"
-    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable debugging output")
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")

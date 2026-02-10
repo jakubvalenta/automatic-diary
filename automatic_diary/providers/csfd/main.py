@@ -86,9 +86,7 @@ def _parse_ratings_page(soup: BeautifulSoup) -> Iterator[Film]:
         yield Film(title=title, datetime_=datetime_)
 
 
-def _parse_ratings_pages(
-    soups: Iterable[BeautifulSoup], subprovider: str
-) -> Iterator[Item]:
+def _parse_ratings_pages(soups: Iterable[BeautifulSoup], subprovider: str) -> Iterator[Item]:
     for soup in soups:
         for film in _parse_ratings_page(soup):
             yield Item.normalized(
