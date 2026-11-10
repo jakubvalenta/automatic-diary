@@ -102,6 +102,8 @@ def main():
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+    if not os.path.isfile(args.config_path):
+        parser.error(f"Configuration file does not exist: {args.config_path}")
     configs = load_configs(args.config_path, args.provider)
     items = call_providers(configs, args.no_cache)
     if args.obfuscate:
